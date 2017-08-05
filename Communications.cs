@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WaterCommunications
 {
@@ -16,16 +13,28 @@ namespace WaterCommunications
         private static double K = 1.1;
 
         public List<Station> stations;
-        public double h;
+        public double h
+        {
+            get
+            {
+                return stations[0].h;
+            }
+            set
+            {
+                stations[0].h = value;
+            }
+        }
         public double hMin;
         public double accidentPercent;
 
         public Communications(List<Station> stations)
         {
             this.stations = stations;
-            connectStations();            
-        }
-
+            connectStations();
+            hasAllSources();
+            hasCycle();
+            hasDoublePipes();
+        }    
 
         private void connectStations()
         {
@@ -39,16 +48,52 @@ namespace WaterCommunications
                     }
                 }
         }
+
+        private void hasAllSources()
+        {
+            foreach (Station s in stations) if (s.source == -1) throw new Exception("There are no source for station " + s.id);
+        }
+
+        private void hasCycle()
+        {
+            List<int> traversal = new List<int>();
+            traversal.Add(0);
+
+            int k = 0;
+            while(k < traversal.Count)
+            {
+                for (int i = 0; i < k; i++)
+                    if (traversal[i] == traversal[k]) throw new Exception("Your communication has cycle, started at station " + stations[traversal[k]].id);
+                foreach (int s in stations[traversal[k]].subs) traversal.Add(s);
+                k++;
+            }
+        }
+
+        private void hasDoublePipes()
+        {
+            foreach(Station st in stations)
+            {
+                List<string> subsId = new List<string>();
+                foreach(int s in st.subs)
+                {
+                    if(subsId.Contains(stations[s].id)) throw new Exception("You have more than 1 connection between station " + st.id + " and " + stations[s].id);
+                    subsId.Add(stations[s].id);
+                }
+            }
+        }     
+
         public void resetQf()
         {
             for (int i = 1; i < stations.Count; i++)
                 stations[i].resetQf();
         }
+
         private void changeAccidentSubs(int station)
         {
             stations[station].Qf = stations[station].Qn * accidentPercent;
             foreach (int s in stations[station].subs) changeAccidentSubs(s);
         }
+
         private void calculateQf(int station)
         {          
             if(stations[station].accident == false)
@@ -61,12 +106,14 @@ namespace WaterCommunications
                 }
             }                           
         }
+
         private double calcilateHLost(double Q, double L, double d)
         {
             double v = (4 * Q * 1000) / (3.6 * Math.PI * d * d);
             double hLost = (A1 / (2 * g)) * (Math.Pow(A0 + c / v, m) / Math.Pow(d / 1000, m + 1)) * v * v * L * K * 1000;
             return hLost;
         }
+
         private void calculateH(int station)
         {
             if (station != 0)
@@ -79,6 +126,7 @@ namespace WaterCommunications
             }
             foreach (int s in stations[station].subs) calculateH(s);
         }
+
         public void calculateOptimalK(int station)
         {
             stations[station].accident = true;
@@ -108,12 +156,12 @@ namespace WaterCommunications
 
             stations[station].accident = false;
         }
+
         private bool checkNorms()
         {
             for (int i = 0; i < stations.Count; i++)
                 if(stations[i].h < hMin) return false;
             return true;
         }
-
     }
 }
