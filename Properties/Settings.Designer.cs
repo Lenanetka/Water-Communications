@@ -130,5 +130,17 @@ namespace WaterCommunications.Properties {
                 this["mSystemOfUnitsGOST"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public string tbMainStationId {
+            get {
+                return ((string)(this["tbMainStationId"]));
+            }
+            set {
+                this["tbMainStationId"] = value;
+            }
+        }
     }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace WaterCommunications
 {
+    public enum SystemOfUnits { SI, GOST};
+
     class Communications
     {
         private static double m = 0.223;
@@ -26,12 +28,14 @@ namespace WaterCommunications
         }
         public double hMin;
         public double accidentPercent;
+        public SystemOfUnits systemOfUnits;
 
         public Communications(List<Station> stations)
         {
             this.stations = stations;
             connectStations();
             hasAllSources();
+            hasCorrectWaterVolume();
             hasCycle();
             hasDoublePipes();
         }    
@@ -53,7 +57,15 @@ namespace WaterCommunications
         {
             foreach (Station s in stations) if (s.source == -1) throw new Exception("There are no source for station " + s.id);
         }
-
+        private void hasCorrectWaterVolume()
+        {
+            for (int i = 1; i < stations.Count; i++)
+            {
+                double Qsum = 0;
+                foreach (int s in stations[i].subs) Qsum += stations[s].Qn;
+                if (stations[i].Qn < Qsum) throw new Exception("Volume of water in pipes less than sum of all sub-stations for station " + stations[i].id);
+            }               
+        }
         private void hasCycle()
         {
             List<int> traversal = new List<int>();
@@ -109,8 +121,15 @@ namespace WaterCommunications
 
         private double calcilateHLost(double Q, double L, double d)
         {
-            double v = (4 * Q * 1000) / (3.6 * Math.PI * d * d);
-            double hLost = (A1 / (2 * g)) * (Math.Pow(A0 + c / v, m) / Math.Pow(d / 1000, m + 1)) * v * v * L * K * 1000;
+            if(systemOfUnits == SystemOfUnits.GOST)
+            {
+                Q /= 3600;
+                d /= 1000;
+                L *= 1000;
+            }
+
+            double v = (4 * Q) / (Math.PI * d * d);
+            double hLost = (A1 / (2 * g)) * (Math.Pow(A0 + c / v, m) / Math.Pow(d, m + 1)) * v * v * L * K;
             return hLost;
         }
 
@@ -122,7 +141,7 @@ namespace WaterCommunications
                     stations[station].h = stations[stations[station].source].h - calcilateHLost(stations[station].Qf/2, stations[station].pipeLength, stations[station].pipeDiameter);  
                 else stations[station].h = stations[stations[station].source].h 
                         - calcilateHLost(stations[station].Qf/2, stations[station].pipeLength * (stations[station].k-1) / stations[station].k, stations[station].pipeDiameter)
-                        - calcilateHLost(stations[station].Qf, stations[station].pipeLength / stations[station].k, stations[station].pipeDiameter);
+                        - calcilateHLost(stations[station].Qf, stations[station].pipeLength / stations[station].k, stations[station].pipeDiameter);             
             }
             foreach (int s in stations[station].subs) calculateH(s);
         }
@@ -152,7 +171,8 @@ namespace WaterCommunications
                 
             }
             //Проверяется проходит ли норматив минимального напора воды вся сеть.
-            while (checkNorms() == false);
+            while (checkNorms() == false && stations[station].k < 100);
+            if (stations[station].k >= 100) throw new Exception("Too much h lost for station " + stations[station].id + "\n May be you have chosen uncorrect system of units");
 
             stations[station].accident = false;
         }

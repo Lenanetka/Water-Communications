@@ -1,0 +1,110 @@
+/*All*/
+*{
+	margin:0;
+	padding:0;
+}
+html, body {
+    height: 100%;
+}
+html {
+	line-height: 1.5;
+}
+body {
+    margin: 0;	
+	color: black;
+    font-family: verdana,sans-serif;
+    font-size: 12px;
+}
+div.menu{
+	position: fixed;
+	display: inline; 
+	height: 28px;
+	width:100%;
+	line-height: 28px;
+	background-color:#f2f2f2;
+	border-style:solid;
+	border-width:thin;
+	border-color:silver;
+	border-top:none;
+	font-family: arial,sans-serif;	   	
+}
+div.menu a,a:visited{
+	text-decoration: none;
+	color: #077fcc;
+	margin:0 15px; 	
+}
+div.menu a.menu_selected{
+	color:black;
+}
+
+div.side_left,div.side_right {
+	height:100%;
+	margin-top:29px;
+	position: fixed;
+	width:10%;
+	background-color:#f2f2f2;
+	border-style:solid;
+	border-width:thin;
+	border-color:silver;
+	border-top:none;
+	border-bottom:none;
+}
+div.side_left{
+	left: 0;
+	position:left;
+	border-left:none;
+}
+div.side_right {
+	right: 0;
+	position:right;
+	border-right:none;
+}
+
+hr{
+	width:100%;
+	height:2px;
+	color:silver;
+	background-color:silver;
+	border-top:none;
+	margin:10px 0;
+}
+div.content{
+	padding-top:28px;
+	width:80%;
+	margin:0 auto;
+	color:black;
+}
+div.content_table{
+	margin:20px;
+	list-style-type: none;
+	
+}
+.content_table a, a:visited{
+	color: #077fcc;
+}
+div.content_unit{
+	margin:20px;
+}
+div.content_unit h3,img{
+	margin:10px;
+}
+a {
+    text-decoration: none;
+}
+/*Index*/
+body#index_body{
+
+}
+/*Instruction*/
+
+/*Interface*/
+
+/*Formula*/
+
+/*Contacts*/
+body#contucts_body a.link_image{
+text-decoration:none;
+}
+body#contucts_body a.link_image img{
+height:50px;
+}

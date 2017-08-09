@@ -3,29 +3,30 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using WaterCommunications.Localization;
 
 namespace WaterCommunications.DataReaderWriter
 {
-    class DataFromToCSV: IDataReaderWriter
+    class DataFromToCSV
     {
         public DataFromToCSV()
         {
 
         }
        
-        public Communications ReadFromFile(String path)
+        public Communications ReadFromFile(String path, string mainStationId)
         {
 
             Communications communications = null;
 
             List<Station> stations = new List<Station>();
-            Station currentStation = new Station("0");
+            Station currentStation = new Station(mainStationId);
             stations.Add(currentStation);
 
             if (!File.Exists(@path))
                 throw new FileNotFoundException("The file is not found in the specified location");
-            using (var reader = new StreamReader(@path))
+            using (var reader = new StreamReader(@path, Encoding.UTF8))
             {
 
                 var csv = new CsvReader(reader);
@@ -74,7 +75,7 @@ namespace WaterCommunications.DataReaderWriter
         {
             try
             {
-                using (var writer = new StreamWriter(@path, !overwrite))
+                using (var writer = new StreamWriter(@path, !overwrite, Encoding.UTF8))
                 {
                     var csv = new CsvWriter(writer);
 
@@ -118,9 +119,33 @@ namespace WaterCommunications.DataReaderWriter
 
                 csv.WriteField("id");
                 csv.WriteField("sourseId");
-                csv.WriteField("L");
-                csv.WriteField("d");
-                csv.WriteField("Q");
+
+                switch (communications.systemOfUnits)
+                {
+                    case SystemOfUnits.SI:
+                        {
+
+                            csv.WriteField("L (m)");
+                            csv.WriteField("d (m)");
+                            csv.WriteField("Q (m^3/s)");
+                            break;
+                        }
+                    case SystemOfUnits.GOST:
+                        {
+                            csv.WriteField("L (km)");
+                            csv.WriteField("d (mm)");
+                            csv.WriteField("Q (m^3/h)");
+                            break;
+                        }
+                    default:
+                        {
+                            csv.WriteField("L");
+                            csv.WriteField("d");
+                            csv.WriteField("Q");
+                            break;
+                        }
+                }               
+                
                 csv.WriteField("h");
                 csv.NextRecord();
 

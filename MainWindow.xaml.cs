@@ -49,12 +49,15 @@ namespace WaterCommunications
         {
             try
             {
-                IDataReaderWriter data = new DataFromToCSV();
-                Communications communications = data.ReadFromFile(tbLoadPath.Text);
+                DataFromToCSV data = new DataFromToCSV();
+                Communications communications = data.ReadFromFile(tbLoadPath.Text, tbMainStationId.Text);
 
                 communications.h = Convert.ToDouble(tbH.Text);
                 communications.hMin = Convert.ToDouble(tbHMin.Text);
                 communications.accidentPercent = Convert.ToDouble(tbAccidentPercent.Text) / 100;
+
+                if (mSystemOfUnitsSI.IsChecked == true) communications.systemOfUnits = SystemOfUnits.SI;
+                if (mSystemOfUnitsGOST.IsChecked == true) communications.systemOfUnits = SystemOfUnits.GOST;
 
                 for (int i = 1; i < communications.stations.Count; i++)
                 {
@@ -127,10 +130,7 @@ namespace WaterCommunications
             checkOnlyOneMenu(sender);
         }
 
-        private void Menu_Coefficients(object sender, RoutedEventArgs e)
-        {
-
-        }
+        
 
         private void Menu_Units_SI(object sender, RoutedEventArgs e)
         {
@@ -142,19 +142,36 @@ namespace WaterCommunications
             checkOnlyOneMenu(sender);
         }
 
+        private void Menu_Coefficients(object sender, RoutedEventArgs e)
+        {
+
+        }
+
         private void Menu_About(object sender, RoutedEventArgs e)
         {
-            System.Windows.MessageBox.Show("Created by Lenanetka (c) 2017", "About program");
+            System.Windows.MessageBox.Show("Water Communications v0.5b\nCreated by Lenanetka (c) 2017", "About program");
         }
 
         private void Menu_How_to_use(object sender, RoutedEventArgs e)
         {
+
+                Help.ShowHelp(null, @"..\..\Resources\Help\index.html");
 
         }
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             Properties.Settings.Default.Save();
             base.OnClosing(e);
+        }
+
+        private void tbLoadPath_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if(File.Exists(@tbLoadPath.Text)) Help.ShowHelp(null, @tbLoadPath.Text);
+        }
+
+        private void tbSavePath_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (File.Exists(@tbLoadPath.Text)) Help.ShowHelp(null, @tbSavePath.Text);
         }
     }
 }
