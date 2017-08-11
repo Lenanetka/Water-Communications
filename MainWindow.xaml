@@ -7,7 +7,7 @@
         xmlns:AttachedBehaviors="clr-namespace:WpfEx.AttachedBehaviors;assembly=WpfEx"
         xmlns:p="clr-namespace:WaterCommunications.Properties"       
         mc:Ignorable="d"
-        Title="Water communications" Height="319.867" Width="465" MinHeight="300" MinWidth="465"
+        Title="Water communications" Height="369.867" Width="553" MinHeight="300" MinWidth="465"
         Icon="Resources/wcicon.ico">
     <Grid>
         <Menu Height="23" VerticalAlignment="Top">
@@ -22,22 +22,16 @@
                     <MenuItem x:Name="mLanguageEnglish" IsChecked="{Binding Source={x:Static p:Settings.Default}, Path=mLanguageEnglish, Mode=TwoWay}" Header="English" IsCheckable="true" Click="Menu_Language_English"></MenuItem>
                     <MenuItem x:Name="mLanguageRussian" IsChecked="{Binding Source={x:Static p:Settings.Default}, Path=mLanguageRussian, Mode=TwoWay}" Header="Russian" IsCheckable="true" Click="Menu_Language_Russian" IsEnabled="False" ToolTipService.ShowOnDisabled="True" ToolTip="Don't work yet"></MenuItem>
                 </MenuItem>
-                <MenuItem x:Name="mSystemOfUnits" Header="System of units">
-                    <MenuItem x:Name="mSystemOfUnitsSI" IsChecked="{Binding Source={x:Static p:Settings.Default}, Path=mSystemOfUnitsSI, Mode=TwoWay}" Header="SI" IsCheckable="true" Click="Menu_Units_SI"></MenuItem>
-                    <MenuItem x:Name="mSystemOfUnitsGOST" IsChecked="{Binding Source={x:Static p:Settings.Default}, Path=mSystemOfUnitsGOST, Mode=TwoWay}" Header="GOST" IsCheckable="true" Click="Menu_Units_GOST"></MenuItem>
-                </MenuItem>
-                <MenuItem Header="Coefficients" Click="Menu_Coefficients" IsEnabled="False" ToolTipService.ShowOnDisabled="True" ToolTip="Don't work yet"></MenuItem>
             </MenuItem>
             <MenuItem Header="Help">
-                <MenuItem Header="About" Click="Menu_About"></MenuItem>
-                <MenuItem Header="How to use" Click="Menu_How_to_use"></MenuItem>
+                <MenuItem Header="About program" Click="Menu_AboutProgram"></MenuItem>
             </MenuItem>
         </Menu>
-        
+
         <Label x:Name="labelSave" Content="Save in" HorizontalAlignment="Left" Margin="12,69,0,0" VerticalAlignment="Top"/>
         <Label x:Name="labelLoad" Content="Load from" HorizontalAlignment="Left" Margin="10,44,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="tbLoadPath" Height="23" Margin="87,44,78,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" ToolTip="Double click to open" MouseDoubleClick="tbLoadPath_MouseDoubleClick"/>
-        <TextBox x:Name="tbSavePath" Height="23" Margin="87,69,78,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" ToolTip="Double click to open" MouseDoubleClick="tbSavePath_MouseDoubleClick"/>
+        <TextBox x:Name="tbLoadPath" Text="{Binding Source={x:Static p:Settings.Default}, Path=tbLoadPath, Mode=TwoWay}" Height="23" Margin="87,44,78,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" ToolTip="Double click to open" MouseDoubleClick="tbLoadPath_MouseDoubleClick"/>
+        <TextBox x:Name="tbSavePath" Text="{Binding Source={x:Static p:Settings.Default}, Path=tbSavePath, Mode=TwoWay}" Height="23" Margin="87,69,78,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" ToolTip="Double click to open" MouseDoubleClick="tbSavePath_MouseDoubleClick"/>
         <Button x:Name="bBrowseLoadPath" Content="..." Margin="0,45,32,0" VerticalAlignment="Top" Click="bBrowseLoadPath_Click" HorizontalAlignment="Right" Width="41"/>
         <Button x:Name="bBrowseSavePath" Content="..." Margin="0,70,32,0" VerticalAlignment="Top" Click="bBrowseSavePath_Click" HorizontalAlignment="Right" Width="41"/>
 
@@ -45,16 +39,21 @@
         <Label x:Name="labelH" Content="Enter H" HorizontalAlignment="Left" Margin="10,140,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.571,-1.154"/>
         <Label x:Name="LabelHMin" Content="Enter Hmin" HorizontalAlignment="Left" Margin="10,168,0,0" VerticalAlignment="Top"/>
         <Label x:Name="LabelAccidentPercent" Content="Enter accident percent of Q" HorizontalAlignment="Left" Margin="10,196,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="tbMainStationId" Text="{Binding Source={x:Static p:Settings.Default}, Path=tbMainStationId, Mode=TwoWay}" Height="23" Margin="192,112,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="141"/>
-        <TextBox x:Name="tbH" Text="{Binding Source={x:Static p:Settings.Default}, Path=tbH, Mode=TwoWay}" Height="23" Margin="192,140,0,0" TextWrapping="Wrap" VerticalAlignment="Top" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
-        <TextBox x:Name="tbHMin" Text="{Binding Source={x:Static p:Settings.Default}, Path=tbHMin, Mode=TwoWay}" Height="23" Margin="192,168,0,0" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="0.525,-0.043" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
-        <TextBox x:Name="tbAccidentPercent" Text="{Binding Source={x:Static p:Settings.Default}, Path=tbAccidentPercent, Mode=TwoWay}" Height="23" Margin="192,196,0,0" TextWrapping="Wrap" VerticalAlignment="Top" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
-        <Label x:Name="tbHMeasurement" Content="meters" HorizontalAlignment="Left" Margin="341,140,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="tbHMinMeasurement" Content="meters" HorizontalAlignment="Left" Margin="341,168,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="tbAccidentPercentMeasurement" Content="%" HorizontalAlignment="Left" Margin="346,196,0,0" VerticalAlignment="Top"/>
-        
-        <CheckBox x:Name="cbOnlyMainInfo" IsChecked="{Binding Source={x:Static p:Settings.Default}, Path=cbOnlyMainInfo, Mode=TwoWay}" Content="Only main info" HorizontalAlignment="Left" Margin="14,241,0,0" VerticalAlignment="Top" Width="153"/>
-        <Button x:Name="bCalculate" Content="Calculate" Margin="192,241,0,0" VerticalAlignment="Top" Click="bCalculate_Click" Width="141" HorizontalAlignment="Left" IsEnabled="False" ToolTipService.ShowOnDisabled="True" ToolTip="Enter file path"/>
+        <Label x:Name="LabelRepairSectionMinimumLength" Content="Minimum length of repair section" HorizontalAlignment="Left" Margin="10,227,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="tbMainStationId" Text="{Binding Source={x:Static p:Settings.Default}, Path=tbMainStationId, Mode=TwoWay}" Height="23" Margin="224,112,0,0" TextWrapping="Wrap" VerticalAlignment="Top" AttachedBehaviors:TextBoxBehavior.IsUnsignedInteger="True" HorizontalAlignment="Left" Width="141"/>
+        <TextBox x:Name="tbH" Text="{Binding Source={x:Static p:Settings.Default}, Path=tbH, Mode=TwoWay}" Height="23" Margin="224,140,0,0" TextWrapping="Wrap" VerticalAlignment="Top" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
+        <TextBox x:Name="tbHMin" Text="{Binding Source={x:Static p:Settings.Default}, Path=tbHMin, Mode=TwoWay}" Height="23" Margin="224,168,0,0" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="0.525,-0.043" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
+        <TextBox x:Name="tbAccidentPercent" Text="{Binding Source={x:Static p:Settings.Default}, Path=tbAccidentPercent, Mode=TwoWay}" Height="23" Margin="224,196,0,0" TextWrapping="Wrap" VerticalAlignment="Top" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
+        <TextBox x:Name="tbRepairSectionMinimumLength" Text="{Binding Source={x:Static p:Settings.Default}, Path=tbRepairSectionMinimumLength, Mode=TwoWay}" Height="23" Margin="224,227,0,0" TextWrapping="Wrap" VerticalAlignment="Top" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
+        <Label x:Name="tbHMeasurement" Content="meters" HorizontalAlignment="Left" Margin="373,140,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="tbHMinMeasurement" Content="meters" HorizontalAlignment="Left" Margin="373,168,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="tbAccidentPercentMeasurement" Content="%" HorizontalAlignment="Left" Margin="378,196,0,0" VerticalAlignment="Top"/>
+
+        <CheckBox x:Name="cbOnlyMainInfo" IsChecked="{Binding Source={x:Static p:Settings.Default}, Path=cbOnlyMainInfo, Mode=TwoWay}" Content="Only main info" HorizontalAlignment="Left" Margin="14,286,0,0" VerticalAlignment="Top" Width="153"/>
+        <Button x:Name="bCalculate" Content="Calculate" Margin="192,286,0,0" VerticalAlignment="Top" Click="bCalculate_Click" Width="141" HorizontalAlignment="Left" IsEnabled="False" ToolTipService.ShowOnDisabled="True" ToolTip="Enter file path"/>
+        <Label x:Name="LabelRepairSectionMinimumLengthMeasurement" Content="kilometers" HorizontalAlignment="Left" Margin="373,222,0,0" VerticalAlignment="Top"/>
+
+
 
     </Grid>
 </Window>

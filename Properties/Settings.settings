@@ -32,5 +32,14 @@
     <Setting Name="tbMainStationId" Type="System.String" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
+    <Setting Name="tbRepairSectionMinimumLength" Type="System.String" Scope="User">
+      <Value Profile="(Default)">0,5</Value>
+    </Setting>
+    <Setting Name="tbLoadPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="tbSavePath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

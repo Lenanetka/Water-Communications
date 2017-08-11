@@ -3,8 +3,6 @@ using System.Collections.Generic;
 
 namespace WaterCommunications
 {
-    public enum SystemOfUnits { SI, GOST};
-
     class Communications
     {
         private static double m = 0.223;
@@ -26,36 +24,43 @@ namespace WaterCommunications
                 stations[0].h = value;
             }
         }
+        public double repairSectionMinimumLength;
         public double hMin;
         public double accidentPercent;
-        public SystemOfUnits systemOfUnits;
 
         public Communications(List<Station> stations)
         {
-            this.stations = stations;
-            connectStations();
+            repairSectionMinimumLength = 0;
+            this.stations = stations;           
+            connectStations();                       
+        }
+        public void checkData()
+        {
+            hasCorrectHmin();
             hasAllSources();
             hasCorrectWaterVolume();
             hasCycle();
             hasDoublePipes();
-        }    
-
+        }
         private void connectStations()
         {
-            for(int i = 0; i < stations.Count; i++)
+            for (int i = 0; i < stations.Count; i++)
                 for (int j = 0; j < stations.Count; j++)
                 {
-                    if(stations[j].sourceId == stations[i].id)
+                    if (stations[j].sourceId == stations[i].id && i != j)
                     {
                         stations[j].source = i;
                         stations[i].addSubStation(j);
                     }
                 }
         }
-
+        private void hasCorrectHmin()
+        {
+            if(stations[0].h < hMin) throw new Exception("Error 201\nH < Hmin");
+        }
         private void hasAllSources()
         {
-            foreach (Station s in stations) if (s.source == -1) throw new Exception("There are no source for station " + s.id);
+            foreach (Station s in stations) if (s.source == -1) throw new Exception("Error 202\nThere are no source for station " + s.id);
         }
         private void hasCorrectWaterVolume()
         {
@@ -63,8 +68,8 @@ namespace WaterCommunications
             {
                 double Qsum = 0;
                 foreach (int s in stations[i].subs) Qsum += stations[s].Qn;
-                if (stations[i].Qn < Qsum) throw new Exception("Volume of water in pipes less than sum of all sub-stations for station " + stations[i].id);
-            }               
+                if (stations[i].Qn < Qsum) throw new Exception("Error 203\nVolume of water in pipes less than sum of all sub-stations for station " + stations[i].id);
+            }
         }
         private void hasCycle()
         {
@@ -72,10 +77,10 @@ namespace WaterCommunications
             traversal.Add(0);
 
             int k = 0;
-            while(k < traversal.Count)
+            while (k < traversal.Count)
             {
                 for (int i = 0; i < k; i++)
-                    if (traversal[i] == traversal[k]) throw new Exception("Your communication has cycle, started at station " + stations[traversal[k]].id);
+                    if (traversal[i] == traversal[k]) throw new Exception("Error 204\nYour communication has cycle");
                 foreach (int s in stations[traversal[k]].subs) traversal.Add(s);
                 k++;
             }
@@ -83,17 +88,16 @@ namespace WaterCommunications
 
         private void hasDoublePipes()
         {
-            foreach(Station st in stations)
+            foreach (Station st in stations)
             {
-                List<string> subsId = new List<string>();
-                foreach(int s in st.subs)
+                List<int> subsId = new List<int>();
+                foreach (int s in st.subs)
                 {
-                    if(subsId.Contains(stations[s].id)) throw new Exception("You have more than 1 connection between station " + st.id + " and " + stations[s].id);
+                    if (subsId.Contains(stations[s].id)) throw new Exception("Error 205\nYou have more than 1 connection between station " + st.id + " and " + stations[s].id);
                     subsId.Add(stations[s].id);
                 }
             }
-        }     
-
+        }       
         public void resetQf()
         {
             for (int i = 1; i < stations.Count; i++)
@@ -121,12 +125,9 @@ namespace WaterCommunications
 
         private double calcilateHLost(double Q, double L, double d)
         {
-            if(systemOfUnits == SystemOfUnits.GOST)
-            {
-                Q /= 3600;
-                d /= 1000;
-                L *= 1000;
-            }
+            Q /= 3600;
+            d /= 1000;
+            L *= 1000;
 
             double v = (4 * Q) / (Math.PI * d * d);
             double hLost = (A1 / (2 * g)) * (Math.Pow(A0 + c / v, m) / Math.Pow(d, m + 1)) * v * v * L * K;
@@ -145,7 +146,24 @@ namespace WaterCommunications
             }
             foreach (int s in stations[station].subs) calculateH(s);
         }
-
+        private void simulateAccident(int station)
+        {
+            //Сбросить значения объемов воды, которые мы высчитывали ранее. 
+            resetQf();
+            //Для каждого трубопровода ищем оптимальное количество участков для поддержание нужного напора. 
+            //Увеличиваем число участков пока вся сеть не пройдет проверку.
+            stations[station].k++;
+            //Сначала определяем место аварии и для него и всех зависящих от него станций уменьшаем количество поступаемой воды до предельного минимума. 
+            //Рекурсивный обход вглубь аварийной ветки дерева, уменьшаем объем воды, тут всё равно как обходить, лишь бы посетить все нужные станции в любом порядке. 
+            changeAccidentSubs(station);
+            //Затем пересчитываем насколько уменьшается количество подаваемой воды на остальных станциях. 
+            //Рекурсивный обход вглубь, просчитанную ранее аварийную ветку не трогаем. 
+            //Здесь важно сначала сделать рекурсивный вызов, так как объем воды вышестоящих источников зависит от количества воды в нижестоящих.
+            calculateQf(0);
+            //Следующий шаг это просчитать напор на каждой станции, начиная с источника. 
+            //И снова рекурсивный обход вглубь, только теперь наоборот сначала считаем для источника, затем идем дальше, отнимая от напора потери в процессе перехода воды по трубам.
+            calculateH(0);
+        }
         public void calculateOptimalK(int station)
         {
             stations[station].accident = true;
@@ -153,34 +171,41 @@ namespace WaterCommunications
 
             do
             {
-                //Сбросить значения объемов воды, которые мы высчитывали ранее. 
-                resetQf();
-                //Для каждого трубопровода ищем оптимальное количество участков для поддержание нужного напора. 
-                //Увеличиваем число участков пока вся сеть не пройдет проверку.
-                stations[station].k++;
-                //Сначала определяем место аварии и для него и всех зависящих от него станций уменьшаем количество поступаемой воды до предельного минимума. 
-                //Рекурсивный обход вглубь аварийной ветки дерева, уменьшаем объем воды, тут всё равно как обходить, лишь бы посетить все нужные станции в любом порядке. 
-                changeAccidentSubs(station);
-                //Затем пересчитываем насколько уменьшается количество подаваемой воды на остальных станциях. 
-                //Рекурсивный обход вглубь, просчитанную ранее аварийную ветку не трогаем. 
-                //Здесь важно сначала сделать рекурсивный вызов, так как объем воды вышестоящих источников зависит от количества воды в нижестоящих.
-                calculateQf(0);
-                //Следующий шаг это просчитать напор на каждой станции, начиная с источника. 
-                //И снова рекурсивный обход вглубь, только теперь наоборот сначала считаем для источника, затем идем дальше, отнимая от напора потери в процессе перехода воды по трубам.
-                calculateH(0);
-                
+                simulateAccident(station);
             }
-            //Проверяется проходит ли норматив минимального напора воды вся сеть.
-            while (checkNorms() == false && stations[station].k < 100);
-            if (stations[station].k >= 100) throw new Exception("Too much h lost for station " + stations[station].id + "\n May be you have chosen uncorrect system of units");
+            while (checkNorms() == false && Math.Floor(stations[station].pipeLength / repairSectionMinimumLength) > stations[station].k);
+          
+            List<int> notCheck = getOutOfNormsStations();
+            if(notCheck.Count > 0)
+            {
+                stations[station].k = 0;
+                do
+                {
+                    simulateAccident(station);
+                }
+                while (checkNorms(notCheck) == false && Math.Floor(stations[station].pipeLength / repairSectionMinimumLength) > stations[station].k);
+            }
+            
 
             stations[station].accident = false;
         }
-
+        private List<int> getOutOfNormsStations()
+        {
+            List<int> outOfNormsStations = new List<int>();
+            for (int i = 0; i < stations.Count; i++)
+                if (stations[i].h < hMin) outOfNormsStations.Add(i);
+            return outOfNormsStations;
+        }
         private bool checkNorms()
         {
             for (int i = 0; i < stations.Count; i++)
                 if(stations[i].h < hMin) return false;
+            return true;
+        }
+        private bool checkNorms(List<int> notCheck)
+        {
+            for (int i = 0; i < stations.Count; i++)
+                if (stations[i].h < hMin && !notCheck.Contains(i)) return false;
             return true;
         }
     }

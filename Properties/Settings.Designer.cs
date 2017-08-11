@@ -142,5 +142,41 @@ namespace WaterCommunications.Properties {
                 this["tbMainStationId"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0,5")]
+        public string tbRepairSectionMinimumLength {
+            get {
+                return ((string)(this["tbRepairSectionMinimumLength"]));
+            }
+            set {
+                this["tbRepairSectionMinimumLength"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public string tbLoadPath {
+            get {
+                return ((string)(this["tbLoadPath"]));
+            }
+            set {
+                this["tbLoadPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public string tbSavePath {
+            get {
+                return ((string)(this["tbSavePath"]));
+            }
+            set {
+                this["tbSavePath"] = value;
+            }
+        }
     }
 }

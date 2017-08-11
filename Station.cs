@@ -5,10 +5,9 @@ namespace WaterCommunications
 {
     class Station
     {
-        public string id;
-
+        public int id;
         //id of source
-        public string sourceId;
+        public int sourceId;
         //list numbers of source and subs
         public int source;
         public List<int> subs;
@@ -28,24 +27,27 @@ namespace WaterCommunications
         public bool accident;
 
         //constructor for main station
-        public Station(string id)
+        public Station(int id)
         {
-            this.id = id;           
-
+            this.id = id;
+            sourceId = -2;
+            source = -2;
             subs = new List<int>();
+            Qn = -1;
+            Qf = -1;
+            pipeLength = -2;
+            pipeDiameter = -2;
             h = -1;
-
+            k = -2;
             accident = false;
         }
         //constructor for station with known source
-        public Station(string id, string sourceId, double Qn, double pipeLength, double pipeDiameter)
+        public Station(int id, int sourceId, double Qn, double pipeLength, double pipeDiameter)
         {
             this.id = id;
-
             this.sourceId = sourceId;
             source = -1;
             subs = new List<int>();
-
             this.Qn = Qn;
             Qf = Qn;
             this.pipeLength = pipeLength;

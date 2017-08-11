@@ -37,8 +37,17 @@
     <ApplicationIcon>wcicon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ClosedXML, Version=0.88.0.0, Culture=neutral, PublicKeyToken=fd1eb21b62ae805b, processorArchitecture=MSIL">
+      <HintPath>..\packages\ClosedXML.0.88.0\lib\net452\ClosedXML.dll</HintPath>
+    </Reference>
     <Reference Include="CsvHelper, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
       <HintPath>..\packages\CsvHelper.2.16.3.0\lib\net45\CsvHelper.dll</HintPath>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.7.2.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.7.2\lib\net40\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="FastMember.Signed, Version=1.0.0.9, Culture=neutral, PublicKeyToken=9e8f22703bef9a29, processorArchitecture=MSIL">
+      <HintPath>..\packages\FastMember.Signed.1.1.0\lib\net40\FastMember.Signed.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -64,11 +73,11 @@
     </ApplicationDefinition>
     <Compile Include="Communications.cs" />
     <Compile Include="DataReaderWriter\DataFromToCSV.cs" />
+    <Compile Include="DataReaderWriter\DataFromToXML.cs" />
+    <Compile Include="DataReaderWriter\IDataReaderWriter.cs" />
     <Compile Include="Localization\Language.cs" />
-    <Compile Include="Localization\Localization.cs" />
     <Compile Include="Localization\LocalizationErrors.cs" />
     <Compile Include="Localization\LocalizationUserInterface.cs" />
-    <Compile Include="Localization\LocalizationOutput.cs" />
     <Compile Include="Properties\Resource.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
