@@ -44,9 +44,9 @@ namespace WaterCommunications.DataReaderWriter
             {
                 var csv = new CsvWriter(writer);
 
-                csv.WriteField("id");
-                csv.WriteField("sourseId");
-                csv.WriteField("optimal k");
+                csv.WriteField("Station");
+                csv.WriteField("Source");
+                csv.WriteField("Optimal k");
                 csv.NextRecord();
 
                 for (int i = 1; i < stations.Count; i++)

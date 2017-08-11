@@ -73,7 +73,7 @@
     </ApplicationDefinition>
     <Compile Include="Communications.cs" />
     <Compile Include="DataReaderWriter\DataFromToCSV.cs" />
-    <Compile Include="DataReaderWriter\DataFromToXML.cs" />
+    <Compile Include="DataReaderWriter\DataFromToXLSX.cs" />
     <Compile Include="DataReaderWriter\IDataReaderWriter.cs" />
     <Compile Include="Localization\Language.cs" />
     <Compile Include="Localization\LocalizationErrors.cs" />

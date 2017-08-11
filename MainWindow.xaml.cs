@@ -51,6 +51,8 @@ namespace WaterCommunications
             try
             {
                 IDataReaderWriter data = new DataFromToCSV();
+                if (tbLoadPath.Text.Contains(".xlsx")) data = new DataFromToXLSX();
+
                 List<Station> stations = data.ReadFromFile(tbLoadPath.Text);
                 stations.Insert(0, new Station(Convert.ToInt32(tbMainStationId.Text)));
 
@@ -63,14 +65,15 @@ namespace WaterCommunications
 
                 communications.checkData();
 
-                if (tbSavePath.Text.Contains(".xlsx")) data = new DataFromToXML();
+                if (tbSavePath.Text.Contains(".csv")) data = new DataFromToCSV();
+                if (tbSavePath.Text.Contains(".xlsx")) data = new DataFromToXLSX();
 
                 for (int i = 1; i < communications.stations.Count; i++)
                 {
                     communications.calculateOptimalK(i);
                     if (cbOnlyMainInfo.IsChecked == false) data.WriteInFile(tbSavePath.Text, communications.stations, i, (i == 1) ? true : false);
                 }
-                if (cbOnlyMainInfo.IsChecked == true) data.WriteInFile(tbSavePath.Text, communications.stations, true);
+                data.WriteInFile(tbSavePath.Text, communications.stations, false);
 
                 System.Windows.MessageBox.Show("Calculating was finished", "Finish");
             }
@@ -84,7 +87,7 @@ namespace WaterCommunications
         {
             
             var fileDialog = new OpenFileDialog();
-            fileDialog.Filter = "csv files (*.csv)|*.csv";
+            fileDialog.Filter = "csv files (*.csv)|*.csv|Microsort Exel 2007-2013 XML (*.xlsx)|*.xlsx";
             fileDialog.FileName = tbLoadPath.Text;
             if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
@@ -96,7 +99,7 @@ namespace WaterCommunications
         private void bBrowseSavePath_Click(object sender, RoutedEventArgs e)
         {
             var fileDialog = new SaveFileDialog();
-            fileDialog.Filter = "csv files (*.csv)|*.csv|Microsort Exel (*.xlsx)|*.xlsx";          
+            fileDialog.Filter = "csv files (*.csv)|*.csv|Microsort Exel 2007-2013 XML (*.xlsx)|*.xlsx";          
             fileDialog.FileName = tbSavePath.Text;
             if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
