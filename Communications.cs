@@ -34,13 +34,15 @@ namespace WaterCommunications
             this.stations = stations;           
             connectStations();                       
         }
+        private delegate bool Check(out string errorMessage);
         public void checkData()
         {
-            hasCorrectHmin();
-            hasAllSources();
-            hasCorrectWaterVolume();
             hasCycle();
-            hasDoublePipes();
+
+            checkNoCriticalError(hasCorrectHmin);
+            checkNoCriticalError(hasAllSources);
+            checkNoCriticalError(hasCorrectWaterVolume);
+            checkNoCriticalError(hasDoublePipes);            
         }
         private void connectStations()
         {
@@ -54,23 +56,6 @@ namespace WaterCommunications
                     }
                 }
         }
-        private void hasCorrectHmin()
-        {
-            if(stations[0].h < hMin) throw new Exception("Error 201\nH < Hmin");
-        }
-        private void hasAllSources()
-        {
-            foreach (Station s in stations) if (s.source == -1) throw new Exception("Error 202\nThere are no source for station " + s.id);
-        }
-        private void hasCorrectWaterVolume()
-        {
-            for (int i = 1; i < stations.Count; i++)
-            {
-                double Qsum = 0;
-                foreach (int s in stations[i].subs) Qsum += stations[s].Qn;
-                if (stations[i].Qn < Qsum) throw new Exception("Error 203\nVolume of water in pipes less than sum of all sub-stations for station " + stations[i].id);
-            }
-        }
         private void hasCycle()
         {
             List<int> traversal = new List<int>();
@@ -83,20 +68,73 @@ namespace WaterCommunications
                     if (traversal[i] == traversal[k]) throw new Exception("Error 204\nYour communication has cycle");
                 foreach (int s in stations[traversal[k]].subs) traversal.Add(s);
                 k++;
+            }            
+        }
+        private void checkNoCriticalError(Check check)
+        {
+            String errorMessage;
+            if (!check(out errorMessage))
+            {
+                System.Windows.Forms.DialogResult dialogResult = System.Windows.Forms.MessageBox.Show(errorMessage + "\nDo you want to continue calcilating?", "Error", System.Windows.Forms.MessageBoxButtons.YesNo);
+                if (dialogResult == System.Windows.Forms.DialogResult.No)
+                {
+                    throw new Exception("Error 210\nCalculating was cancelled");
+                }
             }
         }
-
-        private void hasDoublePipes()
+        private bool hasCorrectHmin(out string errorMessage)
+        {         
+            if (stations[0].h < hMin)
+            {
+                errorMessage = "Error 201\nH < Hmin";
+                return false;
+            }
+            errorMessage = "All is OK";
+            return true;
+        }
+        private bool hasAllSources(out string errorMessage)
+        {
+            foreach (Station s in stations)
+                if (s.source == -1)
+                {
+                    errorMessage = "Error 202\nThere are no source for station " + s.id;
+                    return false;
+                }
+            errorMessage = "All is OK";
+            return true;
+        }
+        private bool hasCorrectWaterVolume(out string errorMessage)
+        {
+            for (int i = 1; i < stations.Count; i++)
+            {
+                double Qsum = 0;
+                foreach (int s in stations[i].subs) Qsum += stations[s].Qn;
+                if (stations[i].Qn < Qsum)
+                {
+                    errorMessage = "Error 203\nVolume of water in pipes less than sum of all sub-stations for station " + stations[i].id;
+                    return false;
+                }               
+            }
+            errorMessage = "All is OK";
+            return true;
+        }       
+        private bool hasDoublePipes(out string errorMessage)
         {
             foreach (Station st in stations)
             {
                 List<int> subsId = new List<int>();
                 foreach (int s in st.subs)
                 {
-                    if (subsId.Contains(stations[s].id)) throw new Exception("Error 205\nYou have more than 1 connection between station " + st.id + " and " + stations[s].id);
+                    if (subsId.Contains(stations[s].id))
+                    {
+                        errorMessage = "Error 205\nYou have more than 1 connection between station " + st.id + " and " + stations[s].id;
+                        return false;
+                    }
                     subsId.Add(stations[s].id);
                 }
             }
+            errorMessage = "All is OK";
+            return true;
         }       
         public void resetQf()
         {

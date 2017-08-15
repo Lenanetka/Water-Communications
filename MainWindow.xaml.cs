@@ -49,9 +49,12 @@ namespace WaterCommunications
         private void bCalculate_Click(object sender, RoutedEventArgs e)
         {
             try
-            {
-                IDataReaderWriter data = new DataFromToCSV();
-                if (tbLoadPath.Text.Contains(".xlsx")) data = new DataFromToXLSX();
+            {               
+                IDataReaderWriter data = null;
+
+                String extension = Path.GetExtension(tbLoadPath.Text);
+                if (extension == ".csv") data = new DataFromToCSV();
+                else if (extension ==".xlsx") data = new DataFromToXLSX();
 
                 List<Station> stations = data.ReadFromFile(tbLoadPath.Text);
                 stations.Insert(0, new Station(Convert.ToInt32(tbMainStationId.Text)));
@@ -65,15 +68,16 @@ namespace WaterCommunications
 
                 communications.checkData();
 
-                if (tbSavePath.Text.Contains(".csv")) data = new DataFromToCSV();
-                if (tbSavePath.Text.Contains(".xlsx")) data = new DataFromToXLSX();
+                extension = Path.GetExtension(tbSavePath.Text);
+                if (extension == ".csv") data = new DataFromToCSV();
+                else if (extension == ".xlsx") data = new DataFromToXLSX();
 
                 for (int i = 1; i < communications.stations.Count; i++)
                 {
                     communications.calculateOptimalK(i);
-                    if (cbOnlyMainInfo.IsChecked == false) data.WriteInFile(tbSavePath.Text, communications.stations, i, (i == 1) ? true : false);
+                    if (cbOnlyMainInfo.IsChecked == false) data.WriteInFile(tbSavePath.Text, communications, i, (i == 1) ? true : false);
                 }
-                data.WriteInFile(tbSavePath.Text, communications.stations, false);
+                data.WriteInFile(tbSavePath.Text, communications, (bool)cbOnlyMainInfo.IsChecked);
 
                 System.Windows.MessageBox.Show("Calculating was finished", "Finish");
             }
@@ -87,7 +91,7 @@ namespace WaterCommunications
         {
             
             var fileDialog = new OpenFileDialog();
-            fileDialog.Filter = "csv files (*.csv)|*.csv|Microsort Exel 2007-2013 XML (*.xlsx)|*.xlsx";
+            fileDialog.Filter = "Microsort Exel 2007-2013 XML (*.xlsx)|*.xlsx|comma-separated values (*.csv)|*.csv";
             fileDialog.FileName = tbLoadPath.Text;
             if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
@@ -99,7 +103,7 @@ namespace WaterCommunications
         private void bBrowseSavePath_Click(object sender, RoutedEventArgs e)
         {
             var fileDialog = new SaveFileDialog();
-            fileDialog.Filter = "csv files (*.csv)|*.csv|Microsort Exel 2007-2013 XML (*.xlsx)|*.xlsx";          
+            fileDialog.Filter = "Microsort Exel 2007-2013 XML (*.xlsx)|*.xlsx|comma-separated values (*.csv)|*.csv";          
             fileDialog.FileName = tbSavePath.Text;
             if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
@@ -155,7 +159,7 @@ namespace WaterCommunications
 
         private void Menu_AboutProgram(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process.Start((Environment.CurrentDirectory + @"\Help\index.html"));
+            //System.Diagnostics.Process.Start((Environment.CurrentDirectory + @"\Help\index.html"));
 
         }
 

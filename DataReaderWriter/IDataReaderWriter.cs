@@ -9,7 +9,7 @@ namespace WaterCommunications.DataReaderWriter
     interface IDataReaderWriter
     {
         List<Station> ReadFromFile(String path);
-        void WriteInFile(String path, List<Station> stations, bool overwrite);
-        void WriteInFile(String path, List<Station> stations, int station, bool overwrite);
+        void WriteInFile(String path, Communications communications, bool overwrite);
+        void WriteInFile(String path, Communications communications, int station, bool overwrite);
     }
 }

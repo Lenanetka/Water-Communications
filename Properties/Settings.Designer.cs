@@ -157,7 +157,7 @@ namespace WaterCommunications.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string tbLoadPath {
             get {
                 return ((string)(this["tbLoadPath"]));
@@ -169,7 +169,7 @@ namespace WaterCommunications.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string tbSavePath {
             get {
                 return ((string)(this["tbSavePath"]));
