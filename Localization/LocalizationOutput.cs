@@ -7,11 +7,7 @@ using System.Threading.Tasks;
 namespace WaterCommunications.Localization
 {
     [Serializable]
-    public class LocalizationUserInterface
-    {       
-        public LocalizationUserInterface()
-        {
-
-        }
+    public class LocalizationOutput
+    {
     }
 }

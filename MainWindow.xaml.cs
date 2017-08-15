@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using WaterCommunications.DataReaderWriter;
+using WaterCommunications.Localization;
 
 namespace WaterCommunications
 {
@@ -159,8 +160,7 @@ namespace WaterCommunications
 
         private void Menu_AboutProgram(object sender, RoutedEventArgs e)
         {
-            //System.Diagnostics.Process.Start((Environment.CurrentDirectory + @"\Help\index.html"));
-
+            System.Diagnostics.Process.Start((Environment.CurrentDirectory + @"\Help\index.html"));
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)

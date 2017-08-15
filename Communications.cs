@@ -27,23 +27,13 @@ namespace WaterCommunications
         public double repairSectionMinimumLength;
         public double hMin;
         public double accidentPercent;
-
         public Communications(List<Station> stations)
         {
             repairSectionMinimumLength = 0;
             this.stations = stations;           
             connectStations();                       
         }
-        private delegate bool Check(out string errorMessage);
-        public void checkData()
-        {
-            hasCycle();
-
-            checkNoCriticalError(hasCorrectHmin);
-            checkNoCriticalError(hasAllSources);
-            checkNoCriticalError(hasCorrectWaterVolume);
-            checkNoCriticalError(hasDoublePipes);            
-        }
+        
         private void connectStations()
         {
             for (int i = 0; i < stations.Count; i++)
@@ -55,6 +45,16 @@ namespace WaterCommunications
                         stations[i].addSubStation(j);
                     }
                 }
+        }
+        private delegate bool Check(out string errorMessage);
+        public void checkData()
+        {
+            hasCycle();
+
+            checkNoCriticalError(hasCorrectHmin);
+            checkNoCriticalError(hasAllSources);
+            checkNoCriticalError(hasCorrectWaterVolume);
+            checkNoCriticalError(hasDoublePipes);
         }
         private void hasCycle()
         {
@@ -75,7 +75,7 @@ namespace WaterCommunications
             String errorMessage;
             if (!check(out errorMessage))
             {
-                System.Windows.Forms.DialogResult dialogResult = System.Windows.Forms.MessageBox.Show(errorMessage + "\nDo you want to continue calcilating?", "Error", System.Windows.Forms.MessageBoxButtons.YesNo);
+                System.Windows.Forms.DialogResult dialogResult = System.Windows.Forms.MessageBox.Show(errorMessage + "\nDo you want to continue calculating?", "Error", System.Windows.Forms.MessageBoxButtons.YesNo);
                 if (dialogResult == System.Windows.Forms.DialogResult.No)
                 {
                     throw new Exception("Error 210\nCalculating was cancelled");
@@ -147,7 +147,6 @@ namespace WaterCommunications
             stations[station].Qf = stations[station].Qn * accidentPercent;
             foreach (int s in stations[station].subs) changeAccidentSubs(s);
         }
-
         private void calculateQf(int station)
         {          
             if(stations[station].accident == false)
@@ -160,7 +159,6 @@ namespace WaterCommunications
                 }
             }                           
         }
-
         private double calcilateHLost(double Q, double L, double d)
         {
             Q /= 3600;
@@ -171,7 +169,6 @@ namespace WaterCommunications
             double hLost = (A1 / (2 * g)) * (Math.Pow(A0 + c / v, m) / Math.Pow(d, m + 1)) * v * v * L * K;
             return hLost;
         }
-
         private void calculateH(int station)
         {
             if (station != 0)
@@ -222,9 +219,7 @@ namespace WaterCommunications
                     simulateAccident(station);
                 }
                 while (checkNorms(notCheck) == false && Math.Floor(stations[station].pipeLength / repairSectionMinimumLength) > stations[station].k);
-            }
-            
-
+            }         
             stations[station].accident = false;
         }
         private List<int> getOutOfNormsStations()

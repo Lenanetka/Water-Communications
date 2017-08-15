@@ -77,12 +77,16 @@ namespace WaterCommunications.DataReaderWriter
             wsi.Cell(1, 2).Value = stations[0].id;
             wsi.Cell(2, 1).Value = "H";
             wsi.Cell(2, 2).Value = communications.h;
+            wsi.Cell(2, 3).Value = "meters";
             wsi.Cell(3, 1).Value = "Hmin";
             wsi.Cell(3, 2).Value = communications.hMin;
+            wsi.Cell(3, 3).Value = "meters";
             wsi.Cell(4, 1).Value = "Accident percent of Q";
             wsi.Cell(4, 2).Value = communications.accidentPercent * 100;
+            wsi.Cell(4, 3).Value = "%";
             wsi.Cell(5, 1).Value = "Minimum length of repair section";
             wsi.Cell(5, 2).Value = communications.repairSectionMinimumLength;
+            wsi.Cell(5, 3).Value = "kilometers";
 
             //Style ws
             ws.Rows(2, stations.Count).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;

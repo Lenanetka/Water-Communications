@@ -76,7 +76,9 @@
     <Compile Include="DataReaderWriter\DataFromToXLSX.cs" />
     <Compile Include="DataReaderWriter\IDataReaderWriter.cs" />
     <Compile Include="Localization\Language.cs" />
+    <Compile Include="Localization\Localization.cs" />
     <Compile Include="Localization\LocalizationErrors.cs" />
+    <Compile Include="Localization\LocalizationOutput.cs" />
     <Compile Include="Localization\LocalizationUserInterface.cs" />
     <Compile Include="Properties\Resource.Designer.cs">
       <AutoGen>True</AutoGen>

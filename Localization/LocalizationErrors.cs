@@ -1,18 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WaterCommunications.Localization
 {
-    class LocalizationErrors
+    [Serializable]
+    public class LocalizationErrors
     {
-        Language currentLanguage;
-
         public LocalizationErrors()
-        {
+        {            
 
         }
+        public String error101;
+        public String error102;
+        public String error103;
+        public String error104;
+        public String error105;
+        public String error106;
     }
 }
