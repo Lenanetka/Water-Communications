@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using WaterCommunications.Localization;
+using MahApps.Metro.Controls.Dialogs;
 
 namespace WaterCommunications
 {
@@ -50,9 +52,9 @@ namespace WaterCommunications
         public void checkData()
         {
             hasCycle();
+            hasAllSources();
 
             checkNoCriticalError(hasCorrectHmin);
-            checkNoCriticalError(hasAllSources);
             checkNoCriticalError(hasCorrectWaterVolume);
             checkNoCriticalError(hasDoublePipes);
         }
@@ -65,20 +67,27 @@ namespace WaterCommunications
             while (k < traversal.Count)
             {
                 for (int i = 0; i < k; i++)
-                    if (traversal[i] == traversal[k]) throw new Exception("Error 204\nYour communication has cycle");
+                    if (traversal[i] == traversal[k]) throw new Exception(CurrentLocalization.localizationErrors.error204);
                 foreach (int s in stations[traversal[k]].subs) traversal.Add(s);
                 k++;
             }            
+        }
+        private void hasAllSources()
+        {
+            foreach (Station s in stations)
+                if (s.source == -1) throw new Exception(CurrentLocalization.localizationErrors.error202 + s.id);
         }
         private void checkNoCriticalError(Check check)
         {
             String errorMessage;
             if (!check(out errorMessage))
             {
-                System.Windows.Forms.DialogResult dialogResult = System.Windows.Forms.MessageBox.Show(errorMessage + "\nDo you want to continue calculating?", "Error", System.Windows.Forms.MessageBoxButtons.YesNo);
+                System.Windows.Forms.DialogResult dialogResult = System.Windows.Forms.MessageBox.Show(
+                    errorMessage + CurrentLocalization.localizationUserInterface.messages.continueCalculating,
+                    CurrentLocalization.localizationErrors.error, System.Windows.Forms.MessageBoxButtons.YesNo);
                 if (dialogResult == System.Windows.Forms.DialogResult.No)
                 {
-                    throw new Exception("Error 210\nCalculating was cancelled");
+                    throw new OperationCanceledException();
                 }
             }
         }
@@ -86,23 +95,12 @@ namespace WaterCommunications
         {         
             if (stations[0].h < hMin)
             {
-                errorMessage = "Error 201\nH < Hmin";
+                errorMessage = CurrentLocalization.localizationErrors.error201;
                 return false;
             }
-            errorMessage = "All is OK";
+            errorMessage = "";
             return true;
-        }
-        private bool hasAllSources(out string errorMessage)
-        {
-            foreach (Station s in stations)
-                if (s.source == -1)
-                {
-                    errorMessage = "Error 202\nThere are no source for station " + s.id;
-                    return false;
-                }
-            errorMessage = "All is OK";
-            return true;
-        }
+        }       
         private bool hasCorrectWaterVolume(out string errorMessage)
         {
             for (int i = 1; i < stations.Count; i++)
@@ -111,11 +109,11 @@ namespace WaterCommunications
                 foreach (int s in stations[i].subs) Qsum += stations[s].Qn;
                 if (stations[i].Qn < Qsum)
                 {
-                    errorMessage = "Error 203\nVolume of water in pipes less than sum of all sub-stations for station " + stations[i].id;
+                    errorMessage = CurrentLocalization.localizationErrors.error203 + stations[i].id;
                     return false;
                 }               
             }
-            errorMessage = "All is OK";
+            errorMessage = "";
             return true;
         }       
         private bool hasDoublePipes(out string errorMessage)
@@ -127,13 +125,13 @@ namespace WaterCommunications
                 {
                     if (subsId.Contains(stations[s].id))
                     {
-                        errorMessage = "Error 205\nYou have more than 1 connection between station " + st.id + " and " + stations[s].id;
+                        errorMessage = CurrentLocalization.localizationErrors.error205 + st.id + " - " + stations[s].id;
                         return false;
                     }
                     subsId.Add(stations[s].id);
                 }
             }
-            errorMessage = "All is OK";
+            errorMessage = "";
             return true;
         }       
         public void resetQf()

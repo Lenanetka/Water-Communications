@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Linq;
+using WaterCommunications.Localization;
 
 namespace WaterCommunications.DataReaderWriter
 {
@@ -75,7 +76,7 @@ namespace WaterCommunications.DataReaderWriter
                 }
             }
             int maxCount = separatorsCount.Max();
-            if (maxCount == 0) throw new Exception("Error 106\nCannot detect delimiter");         
+            if (maxCount == 0) throw new Exception(CurrentLocalization.localizationErrors.error106);         
             return separators[separatorsCount.IndexOf(maxCount)].ToString();
         }
         public List<Station> ReadFromFile(String path)
@@ -92,11 +93,12 @@ namespace WaterCommunications.DataReaderWriter
                     //header = csv.FieldHeaders;
                     int id, sourceId;
                     double Qn, L, d; 
-                    if (!csv.TryGetField(0, out id)) throw new Exception("Error 101\nIncorrect id, id must be integer. \nid = " + csv.GetField(0));                                      
-                    if (!csv.TryGetField(1, out sourceId)) throw new Exception("Error 102\nIncorrect source id, source id must be integer.\nError for station with id = " + id);                                       
-                    if (!csv.TryGetField(2, out Qn) || Qn <= 0) throw new Exception("Error 103\nIncorrect Qn, Qn must be positive double.\nError for station with id = " + id);                                       
-                    if (!csv.TryGetField(3, out L) || L <= 0) throw new Exception("Error 104\nIncorrect L, L must be positive double.\nError for station with id = " + id);                                      
-                    if (!csv.TryGetField(4, out d) || d <= 0) throw new Exception("Error 105\nIncorrect d, d must be positive double.\nError for station with id = " + id);
+                    if (!csv.TryGetField(0, out id)) throw new Exception(CurrentLocalization.localizationErrors.error101 + csv.GetField(0));                                      
+                    if (!csv.TryGetField(1, out sourceId)) throw new Exception(CurrentLocalization.localizationErrors.error102 + id);                                       
+                    if (!csv.TryGetField(2, out Qn) || Qn <= 0) throw new Exception(CurrentLocalization.localizationErrors.error103 + id);                                       
+                    if (!csv.TryGetField(3, out L) || L <= 0)
+                        throw new Exception(CurrentLocalization.localizationErrors.error104 + id);                                      
+                    if (!csv.TryGetField(4, out d) || d <= 0) throw new Exception(CurrentLocalization.localizationErrors.error105 + id);
                     
                     stations.Add(new Station(id, sourceId, Qn, L, d));
                 }
@@ -106,17 +108,20 @@ namespace WaterCommunications.DataReaderWriter
         public void WriteInFile(String path, Communications communications, bool overwrite)
         {
             List<Station> stations = communications.stations;
+            LocalizationOutput output = CurrentLocalization.localizationOutput;
+            LocalizationSystemOfUnits units = CurrentLocalization.localizationSystemOfUnits;
+
             using (var writer = new StreamWriter(@path, !overwrite, Encoding.UTF8))
             {
                 var csv = new CsvWriter(writer);
 
-                csv.WriteField("Main information");
+                csv.WriteField(output.mainInfo.title);
                 csv.NextRecord();
 
-                csv.WriteField("Destination");
-                csv.WriteField("Source");
-                csv.WriteField("Length");
-                csv.WriteField("Optimal k");
+                csv.WriteField(output.mainInfo.destination);
+                csv.WriteField(output.mainInfo.source);
+                csv.WriteField(output.mainInfo.length + ", " + units.km);
+                csv.WriteField(output.mainInfo.optimalK);
                 csv.NextRecord();
 
                 for (int i = 1; i < stations.Count; i++)
@@ -128,23 +133,27 @@ namespace WaterCommunications.DataReaderWriter
                     csv.NextRecord();
                 }
 
-                csv.WriteField("Start datas");
+                csv.WriteField(output.startDatas.title);
                 csv.NextRecord();
 
-                csv.WriteField("Main station id");
+                csv.WriteField(output.startDatas.idMain);
                 csv.WriteField(stations[0].id);
                 csv.NextRecord();
-                csv.WriteField("H");
+                csv.WriteField(output.startDatas.headMain);
                 csv.WriteField(communications.h);
+                csv.WriteField(units.m);
                 csv.NextRecord();
-                csv.WriteField("Hmin");
+                csv.WriteField(output.startDatas.headMin);
                 csv.WriteField(communications.hMin);
+                csv.WriteField(units.m);
                 csv.NextRecord();
-                csv.WriteField("Accident percent of Q");
+                csv.WriteField(output.startDatas.accidentPercent);
                 csv.WriteField(communications.accidentPercent * 100);
+                csv.WriteField(units.percent);
                 csv.NextRecord();
-                csv.WriteField("Minimum length of repair section");
+                csv.WriteField(output.startDatas.lengthRepairSection);
                 csv.WriteField(communications.repairSectionMinimumLength);
+                csv.WriteField(units.km);
                 csv.NextRecord();
 
             }
@@ -152,15 +161,17 @@ namespace WaterCommunications.DataReaderWriter
         public void WriteInFile(String path, Communications communications, int station, bool overwrite)
         {
             List<Station> stations = communications.stations;
+            LocalizationOutput output = CurrentLocalization.localizationOutput;
+            LocalizationSystemOfUnits units = CurrentLocalization.localizationSystemOfUnits;
 
             using (var writer = new StreamWriter(@path, !overwrite))
             {
                 var csv = new CsvWriter(writer);
 
-                csv.WriteField("Destination");                
-                csv.WriteField("Source");
-                csv.WriteField("Length");
-                csv.WriteField("Optimal k");
+                csv.WriteField(output.allInfo.destination);                
+                csv.WriteField(output.allInfo.source);
+                csv.WriteField(output.allInfo.length + ", " + units.km);
+                csv.WriteField(output.allInfo.optimalK);
                 csv.NextRecord();
 
                 csv.WriteField(stations[station].id);
@@ -169,12 +180,12 @@ namespace WaterCommunications.DataReaderWriter
                 csv.WriteField(stations[station].k);
                 csv.NextRecord();
 
-                csv.WriteField("id");
-                csv.WriteField("sourseId");
-                csv.WriteField("L");
-                csv.WriteField("d");
-                csv.WriteField("Q");
-                csv.WriteField("h");
+                csv.WriteField(output.allInfo.destination);
+                csv.WriteField(output.allInfo.source);
+                csv.WriteField(output.allInfo.length + ", " + units.km);
+                csv.WriteField(output.allInfo.diameter + ", " + units.mm);
+                csv.WriteField(output.allInfo.fluidFlow + ", " + units.m3h);
+                csv.WriteField(output.allInfo.head + ", " + units.m);
                 csv.NextRecord();
 
                 for (int i = 1; i < stations.Count; i++)
