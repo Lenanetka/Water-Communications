@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using WaterCommunications.Localization;
 using MahApps.Metro.Controls.Dialogs;
+using System.Threading;
 
 namespace WaterCommunications
 {
@@ -34,8 +35,7 @@ namespace WaterCommunications
             repairSectionMinimumLength = 0;
             this.stations = stations;           
             connectStations();                       
-        }
-        
+        }      
         private void connectStations()
         {
             for (int i = 0; i < stations.Count; i++)
@@ -70,25 +70,38 @@ namespace WaterCommunications
                     if (traversal[i] == traversal[k]) throw new Exception(CurrentLocalization.localizationErrors.error204);
                 foreach (int s in stations[traversal[k]].subs) traversal.Add(s);
                 k++;
-            }            
+            }
         }
         private void hasAllSources()
         {
             foreach (Station s in stations)
                 if (s.source == -1) throw new Exception(CurrentLocalization.localizationErrors.error202 + s.id);
         }
+
+        internal class NonCriticalErrorEventArgs : EventArgs
+        {
+            private readonly String message;
+            public NonCriticalErrorEventArgs(String message)
+            {
+                this.message = message;
+            }
+            public String Message { get { return message; } }
+        }
+        public event EventHandler<NonCriticalErrorEventArgs> NonCriticalError;
+        protected virtual void OnNonCriticalError(NonCriticalErrorEventArgs e)
+        {
+            EventHandler<NonCriticalErrorEventArgs> handler = NonCriticalError;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }       
         private void checkNoCriticalError(Check check)
         {
             String errorMessage;
             if (!check(out errorMessage))
             {
-                System.Windows.Forms.DialogResult dialogResult = System.Windows.Forms.MessageBox.Show(
-                    errorMessage + CurrentLocalization.localizationUserInterface.messages.continueCalculating,
-                    CurrentLocalization.localizationErrors.error, System.Windows.Forms.MessageBoxButtons.YesNo);
-                if (dialogResult == System.Windows.Forms.DialogResult.No)
-                {
-                    throw new OperationCanceledException();
-                }
+                OnNonCriticalError(new NonCriticalErrorEventArgs(errorMessage + CurrentLocalization.localizationUserInterface.messages.continueCalculating));
             }
         }
         private bool hasCorrectHmin(out string errorMessage)
@@ -139,7 +152,6 @@ namespace WaterCommunications
             for (int i = 1; i < stations.Count; i++)
                 stations[i].resetQf();
         }
-
         private void changeAccidentSubs(int station)
         {
             stations[station].Qf = stations[station].Qn * accidentPercent;

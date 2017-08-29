@@ -9,6 +9,7 @@ using WaterCommunications.Localization;
 using MahApps.Metro.Controls.Dialogs;
 using QuickGraph;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace WaterCommunications
 {
@@ -21,10 +22,11 @@ namespace WaterCommunications
         {
             InitializeComponent();
             bindingLocalization();
-            tbLoadPath.TextChanged += TbLoadPath_TextChanged;
-            tbSavePath.TextChanged += TbSavePath_TextChanged;
-            checkValidPath();
+            tbLoadPath.TextChanged += checkValidPath;
+            tbSavePath.TextChanged += checkValidPath;
+            checkValidPath(null, null);
         }
+        #region localization
         private void bindingLocalization()
         {
             LocalizationUserInterface ui = CurrentLocalization.localizationUserInterface;
@@ -55,24 +57,39 @@ namespace WaterCommunications
             LabelRepairSectionMinimumLength.Content = ui.mainPage.LabelRepairSectionMinimumLength;
             cbOnlyMainInfo.Content = ui.mainPage.cbOnlyMainInfo;
             bCalculate.Content = ui.mainPage.bCalculate;
+            bCalculate.ToolTip = ui.mainPage.tooltipCalculate;
 
             tbHMeasurement.Content = sou.m;
             tbHMinMeasurement.Content = sou.m;
             tbAccidentPercentMeasurement.Content = sou.percent;
             LabelRepairSectionMinimumLengthMeasurement.Content = sou.km;
         }
-
-        private void TbSavePath_TextChanged(object sender, TextChangedEventArgs e)
+        private void Menu_Language_English(object sender, RoutedEventArgs e)
         {
-            checkValidPath();
+            checkOnlyOneMenu(sender);
+            Properties.Settings.Default.lanuage = 0;
+            bindingLocalization();
         }
-
-        private void TbLoadPath_TextChanged(object sender, TextChangedEventArgs e)
+        private void Menu_Language_Russian(object sender, RoutedEventArgs e)
         {
-            checkValidPath();
+            checkOnlyOneMenu(sender);
+            Properties.Settings.Default.lanuage = 1;
+            bindingLocalization();
         }
-
-        private void checkValidPath()
+        #endregion
+        #region interfaceVisualEffectsLogic
+        private async Task<bool> showDialogResult(String title, String message)
+        {
+            LocalizationUserInterface ui = CurrentLocalization.localizationUserInterface;
+            var result = await this.ShowMessageAsync(title, message, MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings()
+            {
+                AffirmativeButtonText = ui.messages.yes,
+                NegativeButtonText = ui.messages.no,
+            });
+            if (result == MessageDialogResult.Affirmative) return true;
+            return false;
+        }
+        private void checkValidPath(object sender, TextChangedEventArgs e)
         {
             if (File.Exists(tbLoadPath.Text) && tbSavePath.Text != "")
             {
@@ -86,6 +103,16 @@ namespace WaterCommunications
                 mCalculate.IsEnabled = false;
             }
         }
+        private void checkOnlyOneMenu(object sender)
+        {
+            foreach (System.Windows.Controls.MenuItem m in ((System.Windows.Controls.MenuItem)((System.Windows.Controls.MenuItem)sender).Parent).Items)
+            {
+                m.IsChecked = false;
+            }
+            ((System.Windows.Controls.MenuItem)sender).IsChecked = true;
+        }
+        #endregion
+        #region calculating
         private IDataReaderWriter getDataReaderWriter(String path)
         {
             IDataReaderWriter data = null;
@@ -108,14 +135,15 @@ namespace WaterCommunications
             communications.accidentPercent = Convert.ToDouble(tbAccidentPercent.Text) / 100;
             communications.repairSectionMinimumLength = Convert.ToDouble(tbRepairSectionMinimumLength.Text);
 
-            communications.checkData();
+            communications.NonCriticalError += Communications_NonCriticalError;
+            communications.checkData();           
 
             return communications;
         }
         private void generateResult()
         {
-            Communications communications = getCommunications();
-
+            Communications communications = getCommunications();         
+                       
             IDataReaderWriter data = getDataReaderWriter(tbSavePath.Text);
 
             for (int i = 1; i < communications.stations.Count; i++)
@@ -125,20 +153,26 @@ namespace WaterCommunications
             }
             data.WriteInFile(tbSavePath.Text, communications, (bool)cbOnlyMainInfo.IsChecked);            
         }
-        private async void bCalculate_Click(object sender, RoutedEventArgs e)
+        private async void Communications_NonCriticalError(object sender, Communications.NonCriticalErrorEventArgs e)
+        {           
+            bool result = await showDialogResult(CurrentLocalization.localizationErrors.error, e.Message);
+            if(result == false) throw new OperationCanceledException();
+        }
+        #endregion
+        #region buttons
+        private void bCalculate_Click(object sender, RoutedEventArgs e)
         {          
             try
             {
                 generateResult();
-                await this.ShowMessageAsync(CurrentLocalization.localizationUserInterface.messages.finishCalculatingTitle, CurrentLocalization.localizationUserInterface.messages.finishCalculating);
+                this.ShowMessageAsync(CurrentLocalization.localizationUserInterface.messages.finishCalculatingTitle, CurrentLocalization.localizationUserInterface.messages.finishCalculating);
             }
             catch(OperationCanceledException){}
             catch (Exception ex)
             {
-                await this.ShowMessageAsync(CurrentLocalization.localizationErrors.error, ex.Message);
+                this.ShowMessageAsync(CurrentLocalization.localizationErrors.error, ex.Message);
             }           
         }
-
         private void bBrowseLoadPath_Click(object sender, RoutedEventArgs e)
         {
             
@@ -151,7 +185,6 @@ namespace WaterCommunications
                 Properties.Settings.Default.tbLoadPath = tbLoadPath.Text;
             }             
         }
-
         private void bBrowseSavePath_Click(object sender, RoutedEventArgs e)
         {
             var fileDialog = new SaveFileDialog();
@@ -164,12 +197,24 @@ namespace WaterCommunications
             }
                 
         }
-
+        private void tbLoadPath_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (File.Exists(@tbLoadPath.Text)) System.Diagnostics.Process.Start(@tbLoadPath.Text);
+        }
+        private void tbSavePath_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (File.Exists(@tbLoadPath.Text)) System.Diagnostics.Process.Start(tbSavePath.Text);
+        }
+        private void bRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            createGraphToVisualize();
+        }
+        #endregion
+        #region menu
         private void Menu_Open(object sender, RoutedEventArgs e)
         {
             bBrowseLoadPath_Click(sender, e);
         }
-
         private void Menu_Calculate(object sender, RoutedEventArgs e)
         {
             bCalculate_Click(sender, e);
@@ -178,64 +223,18 @@ namespace WaterCommunications
         private void Menu_Exit(object sender, RoutedEventArgs e)
         {
             this.Close();
-        }
-
-        private void checkOnlyOneMenu(object sender)
-        {
-            foreach (System.Windows.Controls.MenuItem m in ((System.Windows.Controls.MenuItem)((System.Windows.Controls.MenuItem)sender).Parent).Items)
-            {
-                m.IsChecked = false;
-            }
-            ((System.Windows.Controls.MenuItem)sender).IsChecked = true;
-        }
-
-        private void Menu_Language_English(object sender, RoutedEventArgs e)
-        {
-            checkOnlyOneMenu(sender);
-            Properties.Settings.Default.lanuage = 0;
-            bindingLocalization();
-        }
-
-        private void Menu_Language_Russian(object sender, RoutedEventArgs e)
-        {
-            checkOnlyOneMenu(sender);
-            Properties.Settings.Default.lanuage = 1;
-            bindingLocalization();
-        }
-        
-        private void Menu_Units_SI(object sender, RoutedEventArgs e)
-        {
-            checkOnlyOneMenu(sender);
-        }
-
-        private void Menu_Units_GOST(object sender, RoutedEventArgs e)
-        {
-            checkOnlyOneMenu(sender);
-        }
-
-        private void Menu_AboutProgram(object sender, RoutedEventArgs e)
-        {
-            System.Diagnostics.Process.Start((Environment.CurrentDirectory + @"\Help\index.html"));
-        }
-
+        }                                   
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             Properties.Settings.Default.Save();
             base.OnClosing(e);
         }
-
-        private void tbLoadPath_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void Menu_AboutProgram(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(@tbLoadPath.Text)) System.Diagnostics.Process.Start(@tbLoadPath.Text);
-        }
-
-        private void tbSavePath_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (File.Exists(@tbLoadPath.Text)) System.Diagnostics.Process.Start(tbSavePath.Text);
-        }
-        //LayoutAlgorithmType="BoundedFR"
-        //LayoutAlgorithmType="CompoundFDP" 
-        //LayoutAlgorithmType="Tree" 
+            System.Diagnostics.Process.Start((Environment.CurrentDirectory + @"\Help\index.html"));
+        }  
+        #endregion
+        #region graph 
         public IBidirectionalGraph<object, IEdge<object>> _graphToVisualize;
         public IBidirectionalGraph<object, IEdge<object>> graphToVisualize
         {
@@ -253,7 +252,6 @@ namespace WaterCommunications
             }
         }
         public event PropertyChangedEventHandler PropertyChanged;
-
         public void RaisePropChanged(string name)
         {
             var eh = this.PropertyChanged;
@@ -262,22 +260,21 @@ namespace WaterCommunications
                 eh(this, new PropertyChangedEventArgs(name));
             }
         }
-        private async void createGraphToVisualize()
+        private void createGraphToVisualize()
         {
             try
             {
                 Communications communications = getCommunications();
+                
                 List<Station> stations = communications.stations;
 
                 var g = new BidirectionalGraph<object, IEdge<object>>();
-                //add vertices
                 List<String> vertices = new List<String>();
                 for (int i = 0; i < stations.Count; i++)
                 {
                     vertices.Add(stations[i].id.ToString());
                     g.AddVertex(vertices[i]);
                 }
-                //add edges
                 for (int i = 1; i < stations.Count; i++)
                 {
                     g.AddEdge(new Edge<object>(stations[i].sourceId.ToString(), stations[i].id.ToString()));
@@ -287,20 +284,9 @@ namespace WaterCommunications
             catch (OperationCanceledException){}
             catch (Exception ex)
             {
-                await this.ShowMessageAsync(CurrentLocalization.localizationErrors.error, ex.Message);
+                this.ShowMessageAsync(CurrentLocalization.localizationErrors.error, ex.Message);
             }          
-        }
-
-        private async void bRefresh_Click(object sender, RoutedEventArgs e)
-        {
-            createGraphToVisualize();
-
-            LocalizationUserInterface ui = CurrentLocalization.localizationUserInterface;
-            var result = await this.ShowMessageAsync("proceed?", "Info", MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings()
-            {
-                AffirmativeButtonText = ui.messages.yes,
-                NegativeButtonText = ui.messages.no,
-            });
-        }
+        }       
+        #endregion
     }
 }

@@ -27,7 +27,7 @@
         <Menu Height="51" VerticalAlignment="Top">
             <MenuItem x:Name="mFile" Header="File">
                 <MenuItem x:Name="mOpen" Header="Open" Click="Menu_Open"></MenuItem>
-                <MenuItem x:Name="mCalculate" Header="Calculate" Click="Menu_Calculate" IsEnabled="False" ToolTipService.ShowOnDisabled="True" ToolTip="Enter file path"></MenuItem>
+                <MenuItem x:Name="mCalculate" Header="Calculate" Click="Menu_Calculate" IsEnabled="False" ToolTipService.ShowOnDisabled="True"></MenuItem>
                 <Separator></Separator>
                 <MenuItem x:Name="mExit" Header="Exit" Click="Menu_Exit"></MenuItem>
             </MenuItem>
@@ -69,7 +69,7 @@
                         <Label x:Name="LabelRepairSectionMinimumLengthMeasurement" Content="km" HorizontalAlignment="Left" Margin="515,124,0,0" VerticalAlignment="Top" Width="41"/>
                     </Grid>
                     <Grid Margin="10,0,10,10" Height="54" VerticalAlignment="Bottom" HorizontalAlignment="Center">
-                        <Button x:Name="bCalculate" Content="Calculate" Margin="0,0,10,0" VerticalAlignment="Top" Click="bCalculate_Click" Height="27" Width="200" HorizontalAlignment="Center" IsEnabled="False" ToolTipService.ShowOnDisabled="True" ToolTip="Enter file path"/>
+                        <Button x:Name="bCalculate" Content="Calculate" Margin="0,0,10,0" VerticalAlignment="Top" Click="bCalculate_Click" Height="27" Width="200" HorizontalAlignment="Center" IsEnabled="False" ToolTipService.ShowOnDisabled="True"/>
                         <CheckBox x:Name="cbOnlyMainInfo" IsChecked="{Binding cbOnlyMainInfo, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Content="Only main info" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Bottom" Height="27" Width="200"/>
                     </Grid>
                 </Grid>

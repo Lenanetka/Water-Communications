@@ -26,6 +26,7 @@ namespace WaterCommunications.Localization
         public String LabelRepairSectionMinimumLength;
         public String cbOnlyMainInfo;
         public String bCalculate;
+        public String tooltipCalculate;
     }
     [Serializable]
     public class LocalizationMenu
