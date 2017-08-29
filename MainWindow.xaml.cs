@@ -16,15 +16,15 @@ namespace WaterCommunications
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
-    public partial class MainWindow: INotifyPropertyChanged
-    {       
+    public partial class MainWindow : INotifyPropertyChanged
+    {
         public MainWindow()
         {
             InitializeComponent();
             bindingLocalization();
             tbLoadPath.TextChanged += checkValidPath;
             tbSavePath.TextChanged += checkValidPath;
-            checkValidPath(null, null);
+            checkValidPath(null, null);            
         }
         #region localization
         private void bindingLocalization()
@@ -78,16 +78,13 @@ namespace WaterCommunications
         }
         #endregion
         #region interfaceVisualEffectsLogic
-        private async Task<bool> showDialogResult(String title, String message)
+        private bool showDialogResult(String title, String message)
         {
-            LocalizationUserInterface ui = CurrentLocalization.localizationUserInterface;
-            var result = await this.ShowMessageAsync(title, message, MessageDialogStyle.AffirmativeAndNegative, new MetroDialogSettings()
-            {
-                AffirmativeButtonText = ui.messages.yes,
-                NegativeButtonText = ui.messages.no,
-            });
-            if (result == MessageDialogResult.Affirmative) return true;
-            return false;
+            return ((new Message(this, title, message, true)).ShowDialog() == true ? true : false);
+        }
+        private void showMessageBox(String title, String message)
+        {
+            (new Message(this, title, message)).ShowDialog();
         }
         private void checkValidPath(object sender, TextChangedEventArgs e)
         {
@@ -153,9 +150,9 @@ namespace WaterCommunications
             }
             data.WriteInFile(tbSavePath.Text, communications, (bool)cbOnlyMainInfo.IsChecked);            
         }
-        private async void Communications_NonCriticalError(object sender, Communications.NonCriticalErrorEventArgs e)
+        private void Communications_NonCriticalError(object sender, Communications.NonCriticalErrorEventArgs e)
         {           
-            bool result = await showDialogResult(CurrentLocalization.localizationErrors.error, e.Message);
+            bool result = showDialogResult(CurrentLocalization.localizationErrors.error, e.Message);
             if(result == false) throw new OperationCanceledException();
         }
         #endregion
@@ -165,12 +162,12 @@ namespace WaterCommunications
             try
             {
                 generateResult();
-                this.ShowMessageAsync(CurrentLocalization.localizationUserInterface.messages.finishCalculatingTitle, CurrentLocalization.localizationUserInterface.messages.finishCalculating);
+                showMessageBox(CurrentLocalization.localizationUserInterface.messages.finishCalculatingTitle, CurrentLocalization.localizationUserInterface.messages.finishCalculating);
             }
             catch(OperationCanceledException){}
             catch (Exception ex)
             {
-                this.ShowMessageAsync(CurrentLocalization.localizationErrors.error, ex.Message);
+                showMessageBox(CurrentLocalization.localizationErrors.error, ex.Message);
             }           
         }
         private void bBrowseLoadPath_Click(object sender, RoutedEventArgs e)
@@ -284,7 +281,7 @@ namespace WaterCommunications
             catch (OperationCanceledException){}
             catch (Exception ex)
             {
-                this.ShowMessageAsync(CurrentLocalization.localizationErrors.error, ex.Message);
+                showMessageBox(CurrentLocalization.localizationErrors.error, ex.Message);
             }          
         }       
         #endregion

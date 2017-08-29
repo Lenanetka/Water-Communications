@@ -1,0 +1,30 @@
+﻿<controls:MetroWindow x:Class="WaterCommunications.Message"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WaterCommunications"
+        mc:Ignorable="d"
+         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:AttachedBehaviors="clr-namespace:WpfEx.AttachedBehaviors;assembly=WpfEx"
+        xmlns:lang="clr-namespace:WaterCommunications.Localization"                       
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"					  
+        GlowBrush="{DynamicResource AccentColorBrush}"
+        FontFamily="{StaticResource DefaultFont}"              
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        ShowCloseButton="False"
+        ShowMinButton="False"
+        ShowMaxRestoreButton="False"
+        WindowStartupLocation="CenterOwner"
+        Title="Message" SizeToContent="Height" Width="400" ResizeMode="NoResize">
+    <Grid>
+        <Button x:Name="bOk" Content="OK" HorizontalAlignment="Center" Margin="0,0,0,10" Width="75" Height="27" VerticalAlignment="Bottom" Click="bOk_Click"/>
+        <Button x:Name="bYes" Content="Yes" HorizontalAlignment="Right" Margin="0,0,95,10" VerticalAlignment="Bottom" Width="75" Click="bYes_Click"/>
+        <Button x:Name="bNo" Content="No" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Click="bNo_Click"/>
+        <TextBlock x:Name="tMessage" Margin="10,10,10,47" TextWrapping="Wrap" Text="Message"/>
+    </Grid>
+</controls:MetroWindow>
