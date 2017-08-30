@@ -14,17 +14,15 @@ namespace WaterCommunications.DataReaderWriter
         {
 
         }
-       private String detectDelimiter(String path)
-        {           
-            List<char> separators = new List<char> {',', ';'};
+        private String detectDelimiter(String path)
+        {
+            List<char> separators = new List<char> { ',', ';' };
             List<int> separatorsCount = new List<int> { 0, 0 };
 
             int character;
             int row = 0;
             bool quoted = false;
             bool firstChar = true;
-
-
             using (var reader = new StreamReader(@path, Encoding.UTF8))
             {
                 while (!reader.EndOfStream && row < 3)
@@ -76,7 +74,7 @@ namespace WaterCommunications.DataReaderWriter
                 }
             }
             int maxCount = separatorsCount.Max();
-            if (maxCount == 0) throw new Exception(CurrentLocalization.localizationErrors.error106);         
+            if (maxCount == 0) throw new Exception(Languages.current.error106);
             return separators[separatorsCount.IndexOf(maxCount)].ToString();
         }
         public List<Station> ReadFromFile(String path)
@@ -93,12 +91,12 @@ namespace WaterCommunications.DataReaderWriter
                     //header = csv.FieldHeaders;
                     int id, sourceId;
                     double Qn, L, d; 
-                    if (!csv.TryGetField(0, out id)) throw new Exception(CurrentLocalization.localizationErrors.error101 + csv.GetField(0));                                      
-                    if (!csv.TryGetField(1, out sourceId)) throw new Exception(CurrentLocalization.localizationErrors.error102 + id);                                       
-                    if (!csv.TryGetField(2, out Qn) || Qn <= 0) throw new Exception(CurrentLocalization.localizationErrors.error103 + id);                                       
+                    if (!csv.TryGetField(0, out id)) throw new Exception(Languages.current.error101 + csv.GetField(0));                                      
+                    if (!csv.TryGetField(1, out sourceId)) throw new Exception(Languages.current.error102 + id);                                       
+                    if (!csv.TryGetField(2, out Qn) || Qn <= 0) throw new Exception(Languages.current.error103 + id);                                       
                     if (!csv.TryGetField(3, out L) || L <= 0)
-                        throw new Exception(CurrentLocalization.localizationErrors.error104 + id);                                      
-                    if (!csv.TryGetField(4, out d) || d <= 0) throw new Exception(CurrentLocalization.localizationErrors.error105 + id);
+                        throw new Exception(Languages.current.error104 + id);                                      
+                    if (!csv.TryGetField(4, out d) || d <= 0) throw new Exception(Languages.current.error105 + id);
                     
                     stations.Add(new Station(id, sourceId, Qn, L, d));
                 }
@@ -108,20 +106,19 @@ namespace WaterCommunications.DataReaderWriter
         public void WriteInFile(String path, Communications communications, bool overwrite)
         {
             List<Station> stations = communications.stations;
-            LocalizationOutput output = CurrentLocalization.localizationOutput;
-            LocalizationSystemOfUnits units = CurrentLocalization.localizationSystemOfUnits;
+            Languages output = Languages.current;
 
             using (var writer = new StreamWriter(@path, !overwrite, Encoding.UTF8))
             {
                 var csv = new CsvWriter(writer);
 
-                csv.WriteField(output.mainInfo.title);
+                csv.WriteField(output.outputTitleMain);
                 csv.NextRecord();
 
-                csv.WriteField(output.mainInfo.destination);
-                csv.WriteField(output.mainInfo.source);
-                csv.WriteField(output.mainInfo.length + ", " + units.km);
-                csv.WriteField(output.mainInfo.optimalK);
+                csv.WriteField(output.outputDestination);
+                csv.WriteField(output.outputSource);
+                csv.WriteField(output.outputLength + ", " + output.km);
+                csv.WriteField(output.outputOptimalK);
                 csv.NextRecord();
 
                 for (int i = 1; i < stations.Count; i++)
@@ -133,27 +130,27 @@ namespace WaterCommunications.DataReaderWriter
                     csv.NextRecord();
                 }
 
-                csv.WriteField(output.startDatas.title);
+                csv.WriteField(output.outputTitleSettings);
                 csv.NextRecord();
 
-                csv.WriteField(output.startDatas.idMain);
+                csv.WriteField(output.outputIdMain);
                 csv.WriteField(stations[0].id);
                 csv.NextRecord();
-                csv.WriteField(output.startDatas.headMain);
+                csv.WriteField(output.outputHeadMain);
                 csv.WriteField(communications.h);
-                csv.WriteField(units.m);
+                csv.WriteField(output.m);
                 csv.NextRecord();
-                csv.WriteField(output.startDatas.headMin);
+                csv.WriteField(output.outputHeadMin);
                 csv.WriteField(communications.hMin);
-                csv.WriteField(units.m);
+                csv.WriteField(output.m);
                 csv.NextRecord();
-                csv.WriteField(output.startDatas.accidentPercent);
+                csv.WriteField(output.outputAccidentPercent);
                 csv.WriteField(communications.accidentPercent * 100);
-                csv.WriteField(units.percent);
+                csv.WriteField(output.percent);
                 csv.NextRecord();
-                csv.WriteField(output.startDatas.lengthRepairSection);
+                csv.WriteField(output.outputLengthRepairSection);
                 csv.WriteField(communications.repairSectionMinimumLength);
-                csv.WriteField(units.km);
+                csv.WriteField(output.km);
                 csv.NextRecord();
 
             }
@@ -161,17 +158,16 @@ namespace WaterCommunications.DataReaderWriter
         public void WriteInFile(String path, Communications communications, int station, bool overwrite)
         {
             List<Station> stations = communications.stations;
-            LocalizationOutput output = CurrentLocalization.localizationOutput;
-            LocalizationSystemOfUnits units = CurrentLocalization.localizationSystemOfUnits;
+            Languages output = Languages.current;
 
             using (var writer = new StreamWriter(@path, !overwrite))
             {
                 var csv = new CsvWriter(writer);
 
-                csv.WriteField(output.allInfo.destination);                
-                csv.WriteField(output.allInfo.source);
-                csv.WriteField(output.allInfo.length + ", " + units.km);
-                csv.WriteField(output.allInfo.optimalK);
+                csv.WriteField(output.outputDestination);                
+                csv.WriteField(output.outputSource);
+                csv.WriteField(output.outputLength + ", " + output.km);
+                csv.WriteField(output.outputOptimalK);
                 csv.NextRecord();
 
                 csv.WriteField(stations[station].id);
@@ -180,12 +176,12 @@ namespace WaterCommunications.DataReaderWriter
                 csv.WriteField(stations[station].k);
                 csv.NextRecord();
 
-                csv.WriteField(output.allInfo.destination);
-                csv.WriteField(output.allInfo.source);
-                csv.WriteField(output.allInfo.length + ", " + units.km);
-                csv.WriteField(output.allInfo.diameter + ", " + units.mm);
-                csv.WriteField(output.allInfo.fluidFlow + ", " + units.m3h);
-                csv.WriteField(output.allInfo.head + ", " + units.m);
+                csv.WriteField(output.outputDestination);
+                csv.WriteField(output.outputSource);
+                csv.WriteField(output.outputLength + ", " + output.km);
+                csv.WriteField(output.outputDiameter + ", " + output.mm);
+                csv.WriteField(output.outputFluidFlow + ", " + output.m3h);
+                csv.WriteField(output.outputHead + ", " + output.m);
                 csv.NextRecord();
 
                 for (int i = 1; i < stations.Count; i++)
@@ -199,7 +195,6 @@ namespace WaterCommunications.DataReaderWriter
                     if(stations[i].h < communications.hMin) csv.WriteField("*");
                     csv.NextRecord();
                 }
-
                 csv.NextRecord();
             }
         }

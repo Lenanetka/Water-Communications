@@ -1,87 +1,82 @@
 ﻿<controls:MetroWindow x:Class="WaterCommunications.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WaterCommunications"
-        xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        xmlns:AttachedBehaviors="clr-namespace:WpfEx.AttachedBehaviors;assembly=WpfEx"
-        xmlns:p="clr-namespace:WaterCommunications.Properties" 
-        xmlns:lang="clr-namespace:WaterCommunications.Localization" 
-        xmlns:graphsharp="clr-namespace:GraphSharp.Controls;assembly=GraphSharp.Controls"
-        xmlns:zoom="clr-namespace:WPFExtensions.Controls;assembly=WPFExtensions"               
-        mc:Ignorable="d"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        xmlns:wpf="http://materialdesigninxaml.net/winfx/xaml/themes"              
-        TextElement.FontWeight="Regular"
-        TextElement.FontSize="13"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        Background="{DynamicResource MaterialDesignPaper}"					  
-        GlowBrush="{DynamicResource AccentColorBrush}"
-        FontFamily="{StaticResource DefaultFont}"              
-        TextOptions.TextFormattingMode="Ideal"
-        TextOptions.TextRenderingMode="Auto"
-        Title="Water communications" Height="500" Width="650" MinHeight="500" MinWidth="650"
-        x:Name="root">
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:graphsharp="clr-namespace:GraphSharp.Controls;assembly=GraphSharp.Controls"
+                      xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:local="clr-namespace:WaterCommunications"
+                      xmlns:p="clr-namespace:WaterCommunications.Properties"
+                      xmlns:AttachedBehaviors="clr-namespace:WpfEx.AttachedBehaviors;assembly=WpfEx"
+                      xmlns:zoom="clr-namespace:WPFExtensions.Controls;assembly=WPFExtensions"
+                      mc:Ignorable="d"
+                      TextElement.FontWeight="Regular"
+                      TextElement.FontSize="13"
+                      TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                      Background="{DynamicResource MaterialDesignPaper}"					  
+                      GlowBrush="{DynamicResource AccentColorBrush}"
+                      FontFamily="{StaticResource DefaultFont}"              
+                      TextOptions.TextFormattingMode="Ideal"
+                      TextOptions.TextRenderingMode="Auto"
+                      Title="Water communications" Height="500" Width="650" MinHeight="500" MinWidth="650"
+                      x:Name="root">
     <Grid>
         <Menu Height="51" VerticalAlignment="Top">
-            <MenuItem x:Name="mFile" Header="File">
-                <MenuItem x:Name="mOpen" Header="Open" Click="Menu_Open"></MenuItem>
-                <MenuItem x:Name="mCalculate" Header="Calculate" Click="Menu_Calculate" IsEnabled="False" ToolTipService.ShowOnDisabled="True"></MenuItem>
+            <MenuItem x:Name="mFile" Header="{Binding mFile}">
+                <MenuItem x:Name="mOpen" Header="{Binding mOpen}" Click="Menu_Open"></MenuItem>
+                <MenuItem x:Name="mCalculate" Header="{Binding mCalculate}" Click="Menu_Calculate"></MenuItem>
                 <Separator></Separator>
-                <MenuItem x:Name="mExit" Header="Exit" Click="Menu_Exit"></MenuItem>
+                <MenuItem x:Name="mExit" Header="{Binding mExit}" Click="Menu_Exit"></MenuItem>
             </MenuItem>
-            <MenuItem x:Name="mSettings" Header="Settings">
-                <MenuItem x:Name="mLanguage" Header="Language">
-                    <MenuItem x:Name="mLanguageEnglish" IsChecked="{Binding Source={x:Static p:Settings.Default}, Path=mLanguageEnglish, Mode=TwoWay}" Header="English" IsCheckable="true" Click="Menu_Language_English"></MenuItem>
-                    <MenuItem x:Name="mLanguageRussian" IsChecked="{Binding Source={x:Static p:Settings.Default}, Path=mLanguageRussian, Mode=TwoWay}" Header="Russian" IsCheckable="true" Click="Menu_Language_Russian"></MenuItem>
+            <MenuItem x:Name="mSettings" Header="{Binding mSettings}">
+                <MenuItem x:Name="mLanguage" Header="{Binding mLanguage}">
                 </MenuItem>
             </MenuItem>
-            <MenuItem x:Name="mHelp" Header="Help">
-                <MenuItem x:Name="mAbout" Header="About program" Click="Menu_AboutProgram"></MenuItem>
+            <MenuItem x:Name="mHelp" Header="{Binding mHelp}">
+                <MenuItem x:Name="mAbout" Header="{Binding mAbout}" Click="Menu_AboutProgram"></MenuItem>
             </MenuItem>
         </Menu>
         <TabControl Margin="10,28,10,10" TabStripPlacement="Bottom">
-            <TabItem x:Name="tiMain" Header="Main">
-                <Grid>
+            <TabItem x:Name="tiMain" Header="{Binding tiMain}">
+                <Grid x:Name="gMain">
+                    <controls:ProgressRing x:Name="prCalculatingProcess" IsActive="False"/>
                     <Grid Margin="10,10,10,0" Height="66" VerticalAlignment="Top">
-                        <Label x:Name="labelSave" Content="Save in" HorizontalAlignment="Left" Margin="0,38,0,0" VerticalAlignment="Top"/>
-                        <Label x:Name="labelLoad" Content="Load from" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                        <TextBox x:Name="tbLoadPath" Text="{Binding tbLoadPath, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Height="23" Margin="88,0,57,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" MouseDoubleClick="tbLoadPath_MouseDoubleClick"/>
-                        <TextBox x:Name="tbSavePath" Text="{Binding tbSavePath, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Height="23" Margin="88,38,57,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" MouseDoubleClick="tbSavePath_MouseDoubleClick"/>
+                        <Label x:Name="labelSave" Content="{Binding labelSave}" HorizontalAlignment="Left" Margin="0,38,0,0" VerticalAlignment="Top"/>
+                        <Label x:Name="labelLoad" Content="{Binding labelLoad}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <TextBox x:Name="tbLoadPath" Text="{Binding tbLoadPath, Mode=TwoWay, Source={x:Static p:Settings.Default}}" ToolTip="{Binding bBrowsePathTooltip}" Height="23" Margin="88,0,57,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" MouseDoubleClick="tbLoadPath_MouseDoubleClick"/>
+                        <TextBox x:Name="tbSavePath" Text="{Binding tbSavePath, Mode=TwoWay, Source={x:Static p:Settings.Default}}" ToolTip="{Binding bBrowsePathTooltip}" Height="23" Margin="88,38,57,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" MouseDoubleClick="tbSavePath_MouseDoubleClick"/>
                         <Button x:Name="bBrowseLoadPath" Content="..." VerticalAlignment="Top" Click="bBrowseLoadPath_Click" HorizontalAlignment="Right" Width="52"/>
                         <Button x:Name="bBrowseSavePath" Content="..." Margin="0,38,0,0" VerticalAlignment="Top" Click="bBrowseSavePath_Click" HorizontalAlignment="Right" Width="52"/>
                     </Grid>
                     <Grid Margin="10,100,10,0" Height="157" VerticalAlignment="Top">
-                        <Label x:Name="labelSourceId" Content="Enter main station id" HorizontalAlignment="Left" VerticalAlignment="Top" Width="360"/>
-                        <Label x:Name="labelH" Content="Enter H" HorizontalAlignment="Left" Margin="0,31,0,0" VerticalAlignment="Top" Width="360"/>
-                        <Label x:Name="LabelHMin" Content="Enter Hmin" HorizontalAlignment="Left" Margin="2,62,0,0" VerticalAlignment="Top" Width="360"/>
-                        <Label x:Name="LabelAccidentPercent" Content="Enter accident percent of Q" HorizontalAlignment="Left" Margin="4,93,0,0" VerticalAlignment="Top" Width="360"/>
-                        <Label x:Name="LabelRepairSectionMinimumLength" Content="Minimum length of repair section" HorizontalAlignment="Left" Margin="4,124,0,0" VerticalAlignment="Top" Width="360"/>
+                        <Label x:Name="labelSourceId" Content="{Binding labelSourceId}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="360"/>
+                        <Label x:Name="labelH" Content="{Binding labelH}" HorizontalAlignment="Left" Margin="0,31,0,0" VerticalAlignment="Top" Width="360"/>
+                        <Label x:Name="labelHMin" Content="{Binding labelHMin}" HorizontalAlignment="Left" Margin="2,62,0,0" VerticalAlignment="Top" Width="360"/>
+                        <Label x:Name="labelAccidentPercent" Content="{Binding labelAccidentPercent}" HorizontalAlignment="Left" Margin="4,93,0,0" VerticalAlignment="Top" Width="360"/>
+                        <Label x:Name="labelRepairSectionMinimumLength" Content="{Binding labelRepairSectionMinimumLength}" HorizontalAlignment="Left" Margin="4,124,0,0" VerticalAlignment="Top" Width="360"/>
                         <TextBox x:Name="tbMainStationId" Text="{Binding tbMainStationId, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Height="23" Margin="370,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" AttachedBehaviors:TextBoxBehavior.IsUnsignedInteger="True" HorizontalAlignment="Left" Width="141"/>
                         <TextBox x:Name="tbH" Text="{Binding tbH, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Height="23" Margin="370,31,0,0" TextWrapping="Wrap" VerticalAlignment="Top" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
                         <TextBox x:Name="tbHMin" Text="{Binding tbHMin, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Height="23" Margin="370,62,0,0" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="0.525,-0.043" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
                         <TextBox x:Name="tbAccidentPercent" Text="{Binding tbAccidentPercent, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Height="23" Margin="370,93,0,0" TextWrapping="Wrap" VerticalAlignment="Top" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
                         <TextBox x:Name="tbRepairSectionMinimumLength" Text="{Binding tbRepairSectionMinimumLength, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Height="23" Margin="370,124,0,0" TextWrapping="Wrap" VerticalAlignment="Top" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
-                        <Label x:Name="tbHMeasurement" Content="m" HorizontalAlignment="Left" Margin="515,31,0,0" VerticalAlignment="Top" Width="41"/>
-                        <Label x:Name="tbHMinMeasurement" Content="m" HorizontalAlignment="Left" Margin="515,62,0,0" VerticalAlignment="Top" Width="41"/>
-                        <Label x:Name="tbAccidentPercentMeasurement" Content="%" HorizontalAlignment="Left" Margin="515,93,0,0" VerticalAlignment="Top" Width="41"/>
-                        <Label x:Name="LabelRepairSectionMinimumLengthMeasurement" Content="km" HorizontalAlignment="Left" Margin="515,124,0,0" VerticalAlignment="Top" Width="41"/>
+                        <Label x:Name="tbHMeasurement" Content="{Binding m}" HorizontalAlignment="Left" Margin="515,31,0,0" VerticalAlignment="Top" Width="41"/>
+                        <Label x:Name="tbHMinMeasurement" Content="{Binding m}" HorizontalAlignment="Left" Margin="515,62,0,0" VerticalAlignment="Top" Width="41"/>
+                        <Label x:Name="tbAccidentPercentMeasurement" Content="{Binding percent}" HorizontalAlignment="Left" Margin="515,93,0,0" VerticalAlignment="Top" Width="41"/>
+                        <Label x:Name="LabelRepairSectionMinimumLengthMeasurement" Content="{Binding km}" HorizontalAlignment="Left" Margin="515,124,0,0" VerticalAlignment="Top" Width="41"/>
                     </Grid>
                     <Grid Margin="10,0,10,10" Height="54" VerticalAlignment="Bottom" HorizontalAlignment="Center">
-                        <Button x:Name="bCalculate" Content="Calculate" Margin="0,0,10,0" VerticalAlignment="Top" Click="bCalculate_Click" Height="27" Width="200" HorizontalAlignment="Center" IsEnabled="False" ToolTipService.ShowOnDisabled="True"/>
-                        <CheckBox x:Name="cbOnlyMainInfo" IsChecked="{Binding cbOnlyMainInfo, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Content="Only main info" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Bottom" Height="27" Width="200"/>
+                        <Button x:Name="bCalculate" Content="{Binding bCalculate}" Margin="0,0,10,0" VerticalAlignment="Top" Click="bCalculate_Click" Height="27" Width="200" HorizontalAlignment="Center"/>
+                        <CheckBox x:Name="cbOnlyMainInfo" IsChecked="{Binding cbOnlyMainInfo, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Content="{Binding cbOnlyMainInfo}" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Bottom" Height="27" Width="200"/>
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem x:Name="tiGraph" Header="Graph">
+            <TabItem x:Name="tiGraph" Header="{Binding tiGraph}">
                 <Grid>
                     <zoom:ZoomControl Margin="5,5,5,5">
                         <graphsharp:GraphLayout Name="graphLayout" 
-                                            Graph="{Binding ElementName=root, Path=graphToVisualize}" 
-                                            LayoutAlgorithmType="Tree" 
-                                            OverlapRemovalAlgorithmType="FSA" 
-                                            />
+                                                Graph="{Binding ElementName=root, Path=graphToVisualize}" 
+                                                LayoutAlgorithmType="Tree" 
+                                                OverlapRemovalAlgorithmType="FSA"/>
                     </zoom:ZoomControl>
                     <Button x:Name="bRefresh" Width="50" Height="50" Margin="0,20,20,0" VerticalAlignment="Top" HorizontalAlignment="Right" Click="bRefresh_Click">
                         <StackPanel Orientation="Horizontal">

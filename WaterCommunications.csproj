@@ -121,11 +121,7 @@
     <Compile Include="DataReaderWriter\DataFromToCSV.cs" />
     <Compile Include="DataReaderWriter\DataFromToXLSX.cs" />
     <Compile Include="DataReaderWriter\IDataReaderWriter.cs" />
-    <Compile Include="Localization\CurrentLocalization.cs" />
-    <Compile Include="Localization\LocalizationErrors.cs" />
-    <Compile Include="Localization\LocalizationOutput.cs" />
-    <Compile Include="Localization\LocalizationSystemOfUnits.cs" />
-    <Compile Include="Localization\LocalizationUserInterface.cs" />
+    <Compile Include="Localization\Languages.cs" />
     <Compile Include="Message.xaml.cs">
       <DependentUpon>Message.xaml</DependentUpon>
     </Compile>
@@ -201,9 +197,7 @@
   <ItemGroup>
     <Resource Include="Resources\whale.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Graph\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="Resources\refresh.png" />
   </ItemGroup>

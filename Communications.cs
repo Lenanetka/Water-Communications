@@ -7,14 +7,7 @@ using System.Threading;
 namespace WaterCommunications
 {
     class Communications
-    {
-        private static double m = 0.223;
-        private static double A0 = 0;
-        private static double A1 = 0.01344;
-        private static double c = 1;
-        private static double g = 9.81;
-        private static double K = 1.1;
-
+    {      
         public List<Station> stations;
         public double h
         {
@@ -48,36 +41,15 @@ namespace WaterCommunications
                     }
                 }
         }
-        private delegate bool Check(out string errorMessage);
+        #region checkData       
         public void checkData()
         {
-            hasCycle();
-            hasAllSources();
-
-            checkNoCriticalError(hasCorrectHmin);
-            checkNoCriticalError(hasCorrectWaterVolume);
-            checkNoCriticalError(hasDoublePipes);
-        }
-        private void hasCycle()
-        {
-            List<int> traversal = new List<int>();
-            traversal.Add(0);
-
-            int k = 0;
-            while (k < traversal.Count)
-            {
-                for (int i = 0; i < k; i++)
-                    if (traversal[i] == traversal[k]) throw new Exception(CurrentLocalization.localizationErrors.error204);
-                foreach (int s in stations[traversal[k]].subs) traversal.Add(s);
-                k++;
-            }
-        }
-        private void hasAllSources()
-        {
-            foreach (Station s in stations)
-                if (s.source == -1) throw new Exception(CurrentLocalization.localizationErrors.error202 + s.id);
-        }
-
+            checkError(hasCycle, true);
+            checkError(hasAllSources, true);
+            checkError(hasCorrectHmin, false);
+            checkError(hasCorrectWaterVolume, false);
+            checkError(hasDoublePipes, false);
+        }     
         internal class NonCriticalErrorEventArgs : EventArgs
         {
             private readonly String message;
@@ -95,26 +67,47 @@ namespace WaterCommunications
             {
                 handler(this, e);
             }
-        }       
-        private void checkNoCriticalError(Check check)
+        }
+        private delegate void Check();
+        private void checkError(Check check, bool critical)
         {
-            String errorMessage;
-            if (!check(out errorMessage))
+            try
             {
-                OnNonCriticalError(new NonCriticalErrorEventArgs(errorMessage + CurrentLocalization.localizationUserInterface.messages.continueCalculating));
+                check();
+            }
+            catch(Exception e)
+            {
+                if (critical) throw e;
+                else OnNonCriticalError(new NonCriticalErrorEventArgs(e.Message + Languages.current.messageContinueCalculating));
             }
         }
-        private bool hasCorrectHmin(out string errorMessage)
+        private void hasCycle()
+        {
+            List<int> traversal = new List<int>();
+            traversal.Add(0);
+
+            int k = 0;
+            while (k < traversal.Count)
+            {
+                for (int i = 0; i < k; i++)
+                    if (traversal[i] == traversal[k]) throw new Exception(Languages.current.error204);
+                foreach (int s in stations[traversal[k]].subs) traversal.Add(s);
+                k++;
+            }
+        }
+        private void hasAllSources()
+        {
+            foreach (Station s in stations)
+                if (s.source == -1) throw new Exception(Languages.current.error202 + s.id);
+        }
+        private void hasCorrectHmin()
         {         
             if (stations[0].h < hMin)
             {
-                errorMessage = CurrentLocalization.localizationErrors.error201;
-                return false;
+                throw new Exception(Languages.current.error201);
             }
-            errorMessage = "";
-            return true;
         }       
-        private bool hasCorrectWaterVolume(out string errorMessage)
+        private void hasCorrectWaterVolume()
         {
             for (int i = 1; i < stations.Count; i++)
             {
@@ -122,14 +115,11 @@ namespace WaterCommunications
                 foreach (int s in stations[i].subs) Qsum += stations[s].Qn;
                 if (stations[i].Qn < Qsum)
                 {
-                    errorMessage = CurrentLocalization.localizationErrors.error203 + stations[i].id;
-                    return false;
+                    throw new Exception(Languages.current.error203 + stations[i].id);
                 }               
             }
-            errorMessage = "";
-            return true;
         }       
-        private bool hasDoublePipes(out string errorMessage)
+        private void hasDoublePipes()
         {
             foreach (Station st in stations)
             {
@@ -138,15 +128,14 @@ namespace WaterCommunications
                 {
                     if (subsId.Contains(stations[s].id))
                     {
-                        errorMessage = CurrentLocalization.localizationErrors.error205 + st.id + " - " + stations[s].id;
-                        return false;
+                        throw new Exception(Languages.current.error205 + st.id + " - " + stations[s].id);
                     }
                     subsId.Add(stations[s].id);
                 }
             }
-            errorMessage = "";
-            return true;
-        }       
+        }
+        #endregion
+        #region calculating
         public void resetQf()
         {
             for (int i = 1; i < stations.Count; i++)
@@ -169,6 +158,12 @@ namespace WaterCommunications
                 }
             }                           
         }
+        private static double m = 0.223;
+        private static double A0 = 0;
+        private static double A1 = 0.01344;
+        private static double c = 1;
+        private static double g = 9.81;
+        private static double K = 1.1;
         private double calcilateHLost(double Q, double L, double d)
         {
             Q /= 3600;
@@ -209,6 +204,7 @@ namespace WaterCommunications
             //И снова рекурсивный обход вглубь, только теперь наоборот сначала считаем для источника, затем идем дальше, отнимая от напора потери в процессе перехода воды по трубам.
             calculateH(0);
         }
+        private static int kMax = 100;
         public void calculateOptimalK(int station)
         {
             stations[station].accident = true;
@@ -218,7 +214,7 @@ namespace WaterCommunications
             {
                 simulateAccident(station);
             }
-            while (checkNorms() == false && Math.Floor(stations[station].pipeLength / repairSectionMinimumLength) > stations[station].k);
+            while (checkNorms() == false && Math.Floor(stations[station].pipeLength / repairSectionMinimumLength) > stations[station].k && stations[station].k < kMax);
           
             List<int> notCheck = getOutOfNormsStations();
             if(notCheck.Count > 0)
@@ -251,5 +247,6 @@ namespace WaterCommunications
                 if (stations[i].h < hMin && !notCheck.Contains(i)) return false;
             return true;
         }
+        #endregion
     }
 }

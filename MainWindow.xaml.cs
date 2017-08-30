@@ -20,61 +20,27 @@ namespace WaterCommunications
     {
         public MainWindow()
         {
-            InitializeComponent();
-            bindingLocalization();
-            tbLoadPath.TextChanged += checkValidPath;
-            tbSavePath.TextChanged += checkValidPath;
-            checkValidPath(null, null);            
+            this.DataContext = Languages.current;
+            InitializeComponent();            
+            getLanguages();          
         }
         #region localization
-        private void bindingLocalization()
+        //to localization
+        private void getLanguages()
         {
-            LocalizationUserInterface ui = CurrentLocalization.localizationUserInterface;
-            LocalizationSystemOfUnits sou = CurrentLocalization.localizationSystemOfUnits;
-
-            tiMain.Header = ui.mainPage.tiMain;
-            tiGraph.Header = ui.mainPage.tiGraph;
-
-            mFile.Header = ui.menu.file;
-            mOpen.Header = ui.menu.file_open;
-            mCalculate.Header = ui.menu.file_calculate;
-            mExit.Header = ui.menu.file_exit;
-            mSettings.Header = ui.menu.settings;
-            mLanguage.Header = ui.menu.settings_language;
-            mLanguageEnglish.Header = ui.menu.settings_language_english;
-            mLanguageRussian.Header = ui.menu.settings_language_russian;
-            mHelp.Header = ui.menu.help;
-            mAbout.Header = ui.menu.help_about;
-
-            labelLoad.Content = ui.mainPage.labelSave;
-            tbLoadPath.ToolTip = ui.mainPage.tooltipLoadSave;
-            labelSave.Content = ui.mainPage.labelSave;
-            tbSavePath.ToolTip = ui.mainPage.tooltipLoadSave;
-            labelSourceId.Content = ui.mainPage.labelSourceId;
-            labelH.Content = ui.mainPage.labelH;
-            LabelHMin.Content = ui.mainPage.LabelHMin;
-            LabelAccidentPercent.Content = ui.mainPage.LabelAccidentPercent;
-            LabelRepairSectionMinimumLength.Content = ui.mainPage.LabelRepairSectionMinimumLength;
-            cbOnlyMainInfo.Content = ui.mainPage.cbOnlyMainInfo;
-            bCalculate.Content = ui.mainPage.bCalculate;
-            bCalculate.ToolTip = ui.mainPage.tooltipCalculate;
-
-            tbHMeasurement.Content = sou.m;
-            tbHMinMeasurement.Content = sou.m;
-            tbAccidentPercentMeasurement.Content = sou.percent;
-            LabelRepairSectionMinimumLengthMeasurement.Content = sou.km;
+            List<String> languages = Languages.list();
+            foreach(String l in languages)
+            {
+                System.Windows.Controls.MenuItem item = new System.Windows.Controls.MenuItem { Header = l };
+                item.Click += new RoutedEventHandler(changeLanguage);
+                mLanguage.Items.Add(item);
+            }                     
         }
-        private void Menu_Language_English(object sender, RoutedEventArgs e)
+        private void changeLanguage(object sender, RoutedEventArgs e)
         {
             checkOnlyOneMenu(sender);
-            Properties.Settings.Default.lanuage = 0;
-            bindingLocalization();
-        }
-        private void Menu_Language_Russian(object sender, RoutedEventArgs e)
-        {
-            checkOnlyOneMenu(sender);
-            Properties.Settings.Default.lanuage = 1;
-            bindingLocalization();
+            Properties.Settings.Default.language = (String)((System.Windows.Controls.MenuItem)sender).Header;
+            this.DataContext = Languages.current;
         }
         #endregion
         #region interfaceVisualEffectsLogic
@@ -85,20 +51,6 @@ namespace WaterCommunications
         private void showMessageBox(String title, String message)
         {
             (new Message(this, title, message)).ShowDialog();
-        }
-        private void checkValidPath(object sender, TextChangedEventArgs e)
-        {
-            if (File.Exists(tbLoadPath.Text) && tbSavePath.Text != "")
-            {
-                bCalculate.IsEnabled = true;
-                mCalculate.IsEnabled = true;
-            }
-                
-            else
-            {
-                bCalculate.IsEnabled = false;
-                mCalculate.IsEnabled = false;
-            }
         }
         private void checkOnlyOneMenu(object sender)
         {
@@ -118,58 +70,91 @@ namespace WaterCommunications
             else if (extension == ".xlsx") data = new DataFromToXLSX();
             return data;
         }
-        private Communications getCommunications()
+        internal class InputSettings
         {
-            IDataReaderWriter data = getDataReaderWriter(tbLoadPath.Text);
+            public double h;
+            public double hMin;
+            public double accidentPercent;
+            public double repairSectionMinimumLength;
+            public String pathLoad;
+            public String pathSave;
+            public bool onlyMainInfo;
+            public InputSettings(double h, double hMin, double accidentPercent, double repairSectionMinimumLength, String pathLoad, String pathSave, bool onlyMainInfo)
+            {
+                this.h = h;
+                this.hMin = hMin;
+                this.accidentPercent = accidentPercent;
+                this.repairSectionMinimumLength = repairSectionMinimumLength;
+                this.pathLoad = pathLoad;
+                this.pathSave = pathSave;
+                this.onlyMainInfo = onlyMainInfo;
+            }
+        }
+        private Communications getCommunications(InputSettings inputSettings)
+        {
+            IDataReaderWriter data = getDataReaderWriter(inputSettings.pathLoad);
 
-            List<Station> stations = data.ReadFromFile(tbLoadPath.Text);
+            List<Station> stations = data.ReadFromFile(inputSettings.pathLoad);
             stations.Insert(0, new Station(Convert.ToInt32(tbMainStationId.Text)));
 
             Communications communications = new Communications(stations);
 
-            communications.h = Convert.ToDouble(tbH.Text);
-            communications.hMin = Convert.ToDouble(tbHMin.Text);
-            communications.accidentPercent = Convert.ToDouble(tbAccidentPercent.Text) / 100;
-            communications.repairSectionMinimumLength = Convert.ToDouble(tbRepairSectionMinimumLength.Text);
+            communications.h = inputSettings.h;
+            communications.hMin = inputSettings.hMin;
+            communications.accidentPercent = inputSettings.accidentPercent / 100;
+            communications.repairSectionMinimumLength = inputSettings.repairSectionMinimumLength;
 
             communications.NonCriticalError += Communications_NonCriticalError;
             communications.checkData();           
 
             return communications;
         }
-        private void generateResult()
+        private Task generateResult(Communications communications, String pathSave, bool onlyMainInfo)
         {
-            Communications communications = getCommunications();         
-                       
-            IDataReaderWriter data = getDataReaderWriter(tbSavePath.Text);
-
-            for (int i = 1; i < communications.stations.Count; i++)
+            return Task.Run(() =>
             {
-                communications.calculateOptimalK(i);
-                if (cbOnlyMainInfo.IsChecked == false) data.WriteInFile(tbSavePath.Text, communications, i, (i == 1) ? true : false);
-            }
-            data.WriteInFile(tbSavePath.Text, communications, (bool)cbOnlyMainInfo.IsChecked);            
+                IDataReaderWriter data = getDataReaderWriter(pathSave);
+                for (int i = 1; i < communications.stations.Count; i++)
+                {
+                    communications.calculateOptimalK(i);
+                    if (onlyMainInfo == false) data.WriteInFile(pathSave, communications, i, (i == 1) ? true : false);
+                }
+                data.WriteInFile(pathSave, communications, onlyMainInfo);
+            });           
         }
         private void Communications_NonCriticalError(object sender, Communications.NonCriticalErrorEventArgs e)
         {           
-            bool result = showDialogResult(CurrentLocalization.localizationErrors.error, e.Message);
+            bool result = showDialogResult(Languages.current.error, e.Message);
             if(result == false) throw new OperationCanceledException();
+        }
+        
+        private async void calculating(InputSettings inputSettings)
+        {          
+                try
+                {
+                    Communications communications = getCommunications(inputSettings);
+                    await generateResult(communications, inputSettings.pathSave, inputSettings.onlyMainInfo);
+                    showMessageBox(Languages.current.messageTitleFinishCalculating, Languages.current.messageFinishCalculating);
+                }
+                catch (OperationCanceledException) { }
+                catch (Exception ex)
+                {
+                    showMessageBox(Languages.current.error, ex.Message);
+                }
+                finally
+                {
+                    gMain.IsEnabled = true;
+                    prCalculatingProcess.IsActive = false;
+                }
+            
+        }
+        private InputSettings getInputSettings()
+        {
+            return new InputSettings(Convert.ToDouble(tbH.Text), Convert.ToDouble(tbHMin.Text), Convert.ToDouble(tbAccidentPercent.Text), Convert.ToDouble(tbRepairSectionMinimumLength.Text),
+                tbLoadPath.Text, tbSavePath.Text, (bool)cbOnlyMainInfo.IsChecked);
         }
         #endregion
         #region buttons
-        private void bCalculate_Click(object sender, RoutedEventArgs e)
-        {          
-            try
-            {
-                generateResult();
-                showMessageBox(CurrentLocalization.localizationUserInterface.messages.finishCalculatingTitle, CurrentLocalization.localizationUserInterface.messages.finishCalculating);
-            }
-            catch(OperationCanceledException){}
-            catch (Exception ex)
-            {
-                showMessageBox(CurrentLocalization.localizationErrors.error, ex.Message);
-            }           
-        }
         private void bBrowseLoadPath_Click(object sender, RoutedEventArgs e)
         {
             
@@ -201,6 +186,12 @@ namespace WaterCommunications
         private void tbSavePath_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (File.Exists(@tbLoadPath.Text)) System.Diagnostics.Process.Start(tbSavePath.Text);
+        }
+        private void bCalculate_Click(object sender, RoutedEventArgs e)
+        {
+            prCalculatingProcess.IsActive = true;
+            gMain.IsEnabled = false;
+            calculating(getInputSettings());        
         }
         private void bRefresh_Click(object sender, RoutedEventArgs e)
         {
@@ -261,7 +252,7 @@ namespace WaterCommunications
         {
             try
             {
-                Communications communications = getCommunications();
+                Communications communications = getCommunications(getInputSettings());
                 
                 List<Station> stations = communications.stations;
 
@@ -281,7 +272,7 @@ namespace WaterCommunications
             catch (OperationCanceledException){}
             catch (Exception ex)
             {
-                showMessageBox(CurrentLocalization.localizationErrors.error, ex.Message);
+                showMessageBox(Languages.current.error, ex.Message);
             }          
         }       
         #endregion

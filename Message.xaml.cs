@@ -1,15 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Forms;
-using WaterCommunications.DataReaderWriter;
 using WaterCommunications.Localization;
-using MahApps.Metro.Controls.Dialogs;
-using QuickGraph;
-using System.ComponentModel;
-using System.Threading.Tasks;
 
 namespace WaterCommunications
 {
@@ -29,13 +20,11 @@ namespace WaterCommunications
         private void createWindow(Window owner, String title, String message, bool dialogResultMode)
         {                      
             InitializeComponent();
+            this.DataContext = Languages.current;
             this.Owner = owner;
             this.Title = title;
             tMessage.Text = message;
-            LocalizationUserInterface ui = CurrentLocalization.localizationUserInterface;
-            bOk.Content = ui.messages.ok;
-            bYes.Content = ui.messages.yes;
-            bNo.Content = ui.messages.no;
+            Languages ui = Languages.current;
             if (dialogResultMode == true)
             {                       
                 bOk.Visibility = Visibility.Hidden;

@@ -23,11 +23,11 @@ namespace WaterCommunications.DataReaderWriter
                 //header = csv.FieldHeaders;
                 int id, sourceId;
                 double Qn, L, d;
-                if (!int.TryParse(ws.Row(i).Cell(1).GetValue<String>(), out id)) throw new Exception(CurrentLocalization.localizationErrors.error101 + ws.Row(i).Cell(1).GetValue<String>());
-                if (!int.TryParse(ws.Row(i).Cell(2).GetValue<String>(), out sourceId)) throw new Exception(CurrentLocalization.localizationErrors.error102 + id);
-                if (!double.TryParse(ws.Row(i).Cell(3).GetValue<String>(), out Qn) || Qn <= 0) throw new Exception(CurrentLocalization.localizationErrors.error103 + id);
-                if (!double.TryParse(ws.Row(i).Cell(4).GetValue<String>(), out L) || L <= 0) throw new Exception(CurrentLocalization.localizationErrors.error104 + id);
-                if (!double.TryParse(ws.Row(i).Cell(5).GetValue<String>(), out d) || d <= 0) throw new Exception(CurrentLocalization.localizationErrors.error105 + id);
+                if (!int.TryParse(ws.Row(i).Cell(1).GetValue<String>(), out id)) throw new Exception(Languages.current.error101 + ws.Row(i).Cell(1).GetValue<String>());
+                if (!int.TryParse(ws.Row(i).Cell(2).GetValue<String>(), out sourceId)) throw new Exception(Languages.current.error102 + id);
+                if (!double.TryParse(ws.Row(i).Cell(3).GetValue<String>(), out Qn) || Qn <= 0) throw new Exception(Languages.current.error103 + id);
+                if (!double.TryParse(ws.Row(i).Cell(4).GetValue<String>(), out L) || L <= 0) throw new Exception(Languages.current.error104 + id);
+                if (!double.TryParse(ws.Row(i).Cell(5).GetValue<String>(), out d) || d <= 0) throw new Exception(Languages.current.error105 + id);
 
                 stations.Add(new Station(id, sourceId, Qn, L, d));
                 i++;
@@ -37,8 +37,7 @@ namespace WaterCommunications.DataReaderWriter
         }        
             public void WriteInFile(String path, Communications communications, bool overwrite)
         {
-            LocalizationOutput output = CurrentLocalization.localizationOutput;
-            LocalizationSystemOfUnits units = CurrentLocalization.localizationSystemOfUnits;
+            Languages output = Languages.current;
 
             XLWorkbook wb;
             IXLWorksheet ws;
@@ -51,20 +50,19 @@ namespace WaterCommunications.DataReaderWriter
             {
                 wb = new XLWorkbook(@path);
             }
-            ws = wb.Worksheets.Add(output.mainInfo.title);
-            wsi = wb.Worksheets.Add(output.startDatas.title);
+            ws = wb.Worksheets.Add(output.outputTitleMain);
+            wsi = wb.Worksheets.Add(output.outputTitleSettings);
 
             List<Station> stations = communications.stations;
 
             //Main information
-
-            ws.Cell(1, 1).Value = output.mainInfo.destination;
+            ws.Cell(1, 1).Value = output.outputDestination;
             ws.Cell(1, 1).AsRange().AddToNamed("Titles");
-            ws.Cell(1, 2).Value = output.mainInfo.source;
+            ws.Cell(1, 2).Value = output.outputSource;
             ws.Cell(1, 2).AsRange().AddToNamed("Titles");
-            ws.Cell(1, 3).Value = output.mainInfo.length + ", " + units.km;
+            ws.Cell(1, 3).Value = output.outputLength + ", " + output.km;
             ws.Cell(1, 3).AsRange().AddToNamed("Titles");
-            ws.Cell(1, 4).Value = output.mainInfo.optimalK;
+            ws.Cell(1, 4).Value = output.outputOptimalK;
             ws.Cell(1, 4).AsRange().AddToNamed("Titles");
 
             for (int i = 1; i < stations.Count; i++)
@@ -75,22 +73,21 @@ namespace WaterCommunications.DataReaderWriter
                 ws.Cell(i + 1, 4).Value = stations[i].k;
             }
 
-            //Start datas
-
-            wsi.Cell(1, 1).Value = output.startDatas.idMain;
+            //Input settings
+            wsi.Cell(1, 1).Value = output.outputIdMain;
             wsi.Cell(1, 2).Value = stations[0].id;
-            wsi.Cell(2, 1).Value = output.startDatas.headMain;
+            wsi.Cell(2, 1).Value = output.outputHeadMain;
             wsi.Cell(2, 2).Value = communications.h;
-            wsi.Cell(2, 3).Value = units.m;
-            wsi.Cell(3, 1).Value = output.startDatas.headMin;
+            wsi.Cell(2, 3).Value = output.m;
+            wsi.Cell(3, 1).Value = output.outputHeadMin;
             wsi.Cell(3, 2).Value = communications.hMin;
-            wsi.Cell(3, 3).Value = units.m;
-            wsi.Cell(4, 1).Value = output.startDatas.accidentPercent;
+            wsi.Cell(3, 3).Value = output.m;
+            wsi.Cell(4, 1).Value = output.outputAccidentPercent;
             wsi.Cell(4, 2).Value = communications.accidentPercent * 100;
-            wsi.Cell(4, 3).Value = units.percent;
-            wsi.Cell(5, 1).Value = output.startDatas.lengthRepairSection;
+            wsi.Cell(4, 3).Value = output.percent;
+            wsi.Cell(5, 1).Value = output.outputLengthRepairSection;
             wsi.Cell(5, 2).Value = communications.repairSectionMinimumLength;
-            wsi.Cell(5, 3).Value = units.km;
+            wsi.Cell(5, 3).Value = output.km;
 
             //Style ws
             ws.Rows(2, stations.Count).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
@@ -117,32 +114,31 @@ namespace WaterCommunications.DataReaderWriter
         }
         public void WriteInFile(String path, Communications communications, int station, bool overwrite)
         {
-            LocalizationOutput output = CurrentLocalization.localizationOutput;
-            LocalizationSystemOfUnits units = CurrentLocalization.localizationSystemOfUnits;
+            Languages output = Languages.current;
 
             XLWorkbook wb;
             IXLWorksheet ws;          
             if (overwrite)
             {
                 wb = new XLWorkbook();
-                ws = wb.Worksheets.Add(output.allInfo.title);
+                ws = wb.Worksheets.Add(output.outputTitleAll);
             }
             else
             {
                 wb = new XLWorkbook(@path);
-                ws = wb.Worksheet(output.allInfo.title);
+                ws = wb.Worksheet(output.outputTitleAll);
             }
 
             List<Station> stations = communications.stations;
             int n = ((stations.Count - 1) + 3 + 1) * (station - 1);
 
-            ws.Cell(n + 1, 1).Value = output.allInfo.destination;
+            ws.Cell(n + 1, 1).Value = output.outputDestination;
             ws.Cell(n + 1, 1).AsRange().AddToNamed("Titles");
-            ws.Cell(n + 1, 2).Value = output.allInfo.source;
+            ws.Cell(n + 1, 2).Value = output.outputSource;
             ws.Cell(n + 1, 2).AsRange().AddToNamed("Titles");
-            ws.Cell(n + 1, 3).Value = output.allInfo.length + ", " + units.km;
+            ws.Cell(n + 1, 3).Value = output.outputLength + ", " + output.km;
             ws.Cell(n + 1, 3).AsRange().AddToNamed("Titles");
-            ws.Cell(n + 1, 4).Value = output.allInfo.optimalK;
+            ws.Cell(n + 1, 4).Value = output.outputOptimalK;
             ws.Cell(n + 1, 4).AsRange().AddToNamed("Titles");
 
             ws.Cell(n + 2, 1).Value = stations[station].id;
@@ -151,17 +147,17 @@ namespace WaterCommunications.DataReaderWriter
             ws.Cell(n + 2, 3).Style.NumberFormat.Format = "0.00";
             ws.Cell(n + 2, 4).Value = stations[station].k;
 
-            ws.Cell(n + 3, 1).Value = output.allInfo.destination;
+            ws.Cell(n + 3, 1).Value = output.outputDestination;
             ws.Cell(n + 3, 1).AsRange().AddToNamed("Titles");
-            ws.Cell(n + 3, 2).Value = output.allInfo.source;
+            ws.Cell(n + 3, 2).Value = output.outputSource;
             ws.Cell(n + 3, 2).AsRange().AddToNamed("Titles");
-            ws.Cell(n + 3, 3).Value = output.allInfo.length + ", " + units.km;
+            ws.Cell(n + 3, 3).Value = output.outputLength + ", " + output.km;
             ws.Cell(n + 3, 3).AsRange().AddToNamed("Titles");
-            ws.Cell(n + 3, 4).Value = output.allInfo.diameter + ", " + units.mm;
+            ws.Cell(n + 3, 4).Value = output.outputDiameter + ", " + output.mm;
             ws.Cell(n + 3, 4).AsRange().AddToNamed("Titles");
-            ws.Cell(n + 3, 5).Value = output.allInfo.fluidFlow + ", " + units.m3h;
+            ws.Cell(n + 3, 5).Value = output.outputFluidFlow + ", " + output.m3h;
             ws.Cell(n + 3, 5).AsRange().AddToNamed("Titles");
-            ws.Cell(n + 3, 6).Value = output.allInfo.head + ", " + units.m;
+            ws.Cell(n + 3, 6).Value = output.outputHead + ", " + output.m;
             ws.Cell(n + 3, 6).AsRange().AddToNamed("Titles");
 
             for (int i = 1; i < stations.Count; i++)
