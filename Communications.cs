@@ -23,11 +23,15 @@ namespace WaterCommunications
         public double repairSectionMinimumLength;
         public double hMin;
         public double accidentPercent;
-        public Communications(List<Station> stations)
+        public Communications(List<Station> stations, Parameters parameters)
         {
-            repairSectionMinimumLength = 0;
-            this.stations = stations;           
-            connectStations();                       
+            this.stations = stations;
+            stations.Insert(0, new Station(parameters.mainStationId));
+            connectStations();
+            this.h = parameters.h;
+            this.hMin = parameters.hMin;
+            this.accidentPercent = parameters.accidentPercent / 100;
+            this.repairSectionMinimumLength = parameters.repairSectionMinimumLength;
         }      
         private void connectStations()
         {
@@ -49,16 +53,7 @@ namespace WaterCommunications
             checkError(hasCorrectHmin, false);
             checkError(hasCorrectWaterVolume, false);
             checkError(hasDoublePipes, false);
-        }     
-        internal class NonCriticalErrorEventArgs : EventArgs
-        {
-            private readonly String message;
-            public NonCriticalErrorEventArgs(String message)
-            {
-                this.message = message;
-            }
-            public String Message { get { return message; } }
-        }
+        }       
         public event EventHandler<NonCriticalErrorEventArgs> NonCriticalError;
         protected virtual void OnNonCriticalError(NonCriticalErrorEventArgs e)
         {

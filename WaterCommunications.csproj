@@ -121,10 +121,12 @@
     <Compile Include="DataReaderWriter\DataFromToCSV.cs" />
     <Compile Include="DataReaderWriter\DataFromToXLSX.cs" />
     <Compile Include="DataReaderWriter\IDataReaderWriter.cs" />
+    <Compile Include="InputSettings.cs" />
     <Compile Include="Localization\Languages.cs" />
     <Compile Include="Message.xaml.cs">
       <DependentUpon>Message.xaml</DependentUpon>
     </Compile>
+    <Compile Include="NonCriticalErrorEventArgs.cs" />
     <Compile Include="Properties\Resource.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

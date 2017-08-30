@@ -29,7 +29,7 @@
                 <MenuItem x:Name="mExit" Header="{Binding mExit}" Click="Menu_Exit"></MenuItem>
             </MenuItem>
             <MenuItem x:Name="mSettings" Header="{Binding mSettings}">
-                <MenuItem x:Name="mLanguage" Header="{Binding mLanguage}">
+                <MenuItem x:Name="mLanguage" Header="{Binding mLanguage}" Loaded="mLanguage_Loaded">
                 </MenuItem>
             </MenuItem>
             <MenuItem x:Name="mHelp" Header="{Binding mHelp}">
@@ -43,8 +43,8 @@
                     <Grid Margin="10,10,10,0" Height="66" VerticalAlignment="Top">
                         <Label x:Name="labelSave" Content="{Binding labelSave}" HorizontalAlignment="Left" Margin="0,38,0,0" VerticalAlignment="Top"/>
                         <Label x:Name="labelLoad" Content="{Binding labelLoad}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                        <TextBox x:Name="tbLoadPath" Text="{Binding tbLoadPath, Mode=TwoWay, Source={x:Static p:Settings.Default}}" ToolTip="{Binding bBrowsePathTooltip}" Height="23" Margin="88,0,57,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" MouseDoubleClick="tbLoadPath_MouseDoubleClick"/>
-                        <TextBox x:Name="tbSavePath" Text="{Binding tbSavePath, Mode=TwoWay, Source={x:Static p:Settings.Default}}" ToolTip="{Binding bBrowsePathTooltip}" Height="23" Margin="88,38,57,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" MouseDoubleClick="tbSavePath_MouseDoubleClick"/>
+                        <TextBox x:Name="tbLoadPath" Text="{Binding tbLoadPath, Mode=TwoWay, Source={x:Static p:Settings.Default}}" ToolTip="{Binding bBrowsePathTooltip}" Height="23" Margin="100,0,57,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" MouseDoubleClick="tbLoadPath_MouseDoubleClick"/>
+                        <TextBox x:Name="tbSavePath" Text="{Binding tbSavePath, Mode=TwoWay, Source={x:Static p:Settings.Default}}" ToolTip="{Binding bBrowsePathTooltip}" Height="23" Margin="100,38,57,0" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" MouseDoubleClick="tbSavePath_MouseDoubleClick"/>
                         <Button x:Name="bBrowseLoadPath" Content="..." VerticalAlignment="Top" Click="bBrowseLoadPath_Click" HorizontalAlignment="Right" Width="52"/>
                         <Button x:Name="bBrowseSavePath" Content="..." Margin="0,38,0,0" VerticalAlignment="Top" Click="bBrowseSavePath_Click" HorizontalAlignment="Right" Width="52"/>
                     </Grid>
