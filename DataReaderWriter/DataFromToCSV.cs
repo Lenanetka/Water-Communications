@@ -13,7 +13,7 @@ namespace WaterCommunications.DataReaderWriter
         public DataFromToCSV()
         {
 
-        }
+        }       
         private String detectDelimiter(String path)
         {
             List<char> separators = new List<char> { ',', ';' };
@@ -103,6 +103,35 @@ namespace WaterCommunications.DataReaderWriter
             }
             return stations;
         }
+        public List<Pipe> loadPipeMaterials(String path)
+        {
+            List<Pipe> pipes = new List<Pipe>();
+            using (var reader = new StreamReader(@path, Encoding.UTF8))
+            {
+                var csv = new CsvReader(reader);
+                csv.Configuration.Delimiter = detectDelimiter(path);
+
+                //csv.Configuration.HasHeaderRecord = false;
+                while (csv.Read())
+                {
+                    //header = csv.FieldHeaders;
+                    String name;
+                    int id;
+                    double m, A0, A1, C, VLimit, mLimit, A0Limit, A1Limit, CLimit;
+                    if (!csv.TryGetField(0, out name) || !csv.TryGetField(1, out id) || !csv.TryGetField(2, out m) || !csv.TryGetField(3, out A0) || !csv.TryGetField(4, out A1) || !csv.TryGetField(5, out C)) throw new Exception(Languages.current.error107);
+                    if (!csv.TryGetField(6, out VLimit) || VLimit <= 0)
+                    {
+                        pipes.Add(new Pipe(name, id, m, A0, A1, C));
+                    }
+                    else
+                    {
+                        if (!csv.TryGetField(7, out mLimit) || !csv.TryGetField(8, out A0Limit) || !csv.TryGetField(9, out A1Limit) || !csv.TryGetField(10, out CLimit)) throw new Exception(Languages.current.error107);
+                        pipes.Add(new Pipe(name, id, m, A0, A1, C, VLimit, mLimit, A0Limit, A1Limit, CLimit));
+                    }
+                }
+            }
+            return pipes;
+        }
         public void WriteInFile(String path, Communications communications, bool overwrite)
         {
             List<Station> stations = communications.stations;
@@ -152,7 +181,13 @@ namespace WaterCommunications.DataReaderWriter
                 csv.WriteField(communications.repairSectionMinimumLength);
                 csv.WriteField(output.km);
                 csv.NextRecord();
-
+                csv.WriteField(output.outputPipeMaterial);
+                csv.WriteField(communications.pipe.name);
+                csv.NextRecord();
+                csv.WriteField(output.outputAdditionalHeadLoss);
+                csv.WriteField(communications.additionalHeadLoss * 100 - 100);
+                csv.WriteField(output.percent);
+                csv.NextRecord();
             }
         }
         public void WriteInFile(String path, Communications communications, int station, bool overwrite)

@@ -18,7 +18,7 @@
                       FontFamily="{StaticResource DefaultFont}"              
                       TextOptions.TextFormattingMode="Ideal"
                       TextOptions.TextRenderingMode="Auto"
-                      Title="Water communications" Height="500" Width="650" MinHeight="500" MinWidth="650"
+                      Title="Water communications" Height="550" Width="650" MinHeight="550" MinWidth="650"
                       x:Name="root">
     <Grid>
         <Menu Height="51" VerticalAlignment="Top">
@@ -48,21 +48,26 @@
                         <Button x:Name="bBrowseLoadPath" Content="..." VerticalAlignment="Top" Click="bBrowseLoadPath_Click" HorizontalAlignment="Right" Width="52"/>
                         <Button x:Name="bBrowseSavePath" Content="..." Margin="0,38,0,0" VerticalAlignment="Top" Click="bBrowseSavePath_Click" HorizontalAlignment="Right" Width="52"/>
                     </Grid>
-                    <Grid Margin="10,100,10,0" Height="157" VerticalAlignment="Top">
+                    <Grid Margin="10,100,10,74">
                         <Label x:Name="labelSourceId" Content="{Binding labelSourceId}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="360"/>
                         <Label x:Name="labelH" Content="{Binding labelH}" HorizontalAlignment="Left" Margin="0,31,0,0" VerticalAlignment="Top" Width="360"/>
                         <Label x:Name="labelHMin" Content="{Binding labelHMin}" HorizontalAlignment="Left" Margin="2,62,0,0" VerticalAlignment="Top" Width="360"/>
                         <Label x:Name="labelAccidentPercent" Content="{Binding labelAccidentPercent}" HorizontalAlignment="Left" Margin="4,93,0,0" VerticalAlignment="Top" Width="360"/>
                         <Label x:Name="labelRepairSectionMinimumLength" Content="{Binding labelRepairSectionMinimumLength}" HorizontalAlignment="Left" Margin="4,124,0,0" VerticalAlignment="Top" Width="360"/>
+                        <Label x:Name="labelPipeMaterial" Content="{Binding labelPipeMaterial}" HorizontalAlignment="Left" Margin="4,155,0,0" VerticalAlignment="Top" Width="360"/>
+                        <Label x:Name="labelAdditionalHeadLoss" Content="{Binding labelAdditionalHeadLoss}" HorizontalAlignment="Left" Margin="4,217,0,0" VerticalAlignment="Top" Width="360"/>
                         <TextBox x:Name="tbMainStationId" Text="{Binding tbMainStationId, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Height="23" Margin="370,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" AttachedBehaviors:TextBoxBehavior.IsUnsignedInteger="True" HorizontalAlignment="Left" Width="141"/>
                         <TextBox x:Name="tbH" Text="{Binding tbH, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Height="23" Margin="370,31,0,0" TextWrapping="Wrap" VerticalAlignment="Top" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
                         <TextBox x:Name="tbHMin" Text="{Binding tbHMin, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Height="23" Margin="370,62,0,0" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="0.525,-0.043" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
                         <TextBox x:Name="tbAccidentPercent" Text="{Binding tbAccidentPercent, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Height="23" Margin="370,93,0,0" TextWrapping="Wrap" VerticalAlignment="Top" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
                         <TextBox x:Name="tbRepairSectionMinimumLength" Text="{Binding tbRepairSectionMinimumLength, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Height="23" Margin="370,124,0,0" TextWrapping="Wrap" VerticalAlignment="Top" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
-                        <Label x:Name="tbHMeasurement" Content="{Binding m}" HorizontalAlignment="Left" Margin="515,31,0,0" VerticalAlignment="Top" Width="41"/>
-                        <Label x:Name="tbHMinMeasurement" Content="{Binding m}" HorizontalAlignment="Left" Margin="515,62,0,0" VerticalAlignment="Top" Width="41"/>
+                        <ComboBox x:Name="cbPipeMaterial" SelectedIndex="{Binding cbPipeMaterialSelectedIndex, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Height="23" Margin="8,186,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="503"/>
+                        <TextBox x:Name="tbAdditionalHeadLoss" Text="{Binding tbAdditionalHeadLoss, Mode=TwoWay, Source={x:Static p:Settings.Default}}" Height="23" Margin="370,217,0,0" TextWrapping="Wrap" VerticalAlignment="Top" AttachedBehaviors:TextBoxBehavior.IsUnsignedDouble="True" HorizontalAlignment="Left" Width="141"/>
+                        <Label x:Name="labelHMeasurement" Content="{Binding m}" HorizontalAlignment="Left" Margin="515,31,0,0" VerticalAlignment="Top" Width="41"/>
+                        <Label x:Name="labelHMinMeasurement" Content="{Binding m}" HorizontalAlignment="Left" Margin="515,62,0,0" VerticalAlignment="Top" Width="41"/>
                         <Label x:Name="tbAccidentPercentMeasurement" Content="{Binding percent}" HorizontalAlignment="Left" Margin="515,93,0,0" VerticalAlignment="Top" Width="41"/>
-                        <Label x:Name="LabelRepairSectionMinimumLengthMeasurement" Content="{Binding km}" HorizontalAlignment="Left" Margin="515,124,0,0" VerticalAlignment="Top" Width="41"/>
+                        <Label x:Name="labelRepairSectionMinimumLengthMeasurement" Content="{Binding km}" HorizontalAlignment="Left" Margin="515,124,0,0" VerticalAlignment="Top" Width="41"/>
+                        <Label x:Name="labelAdditionalHeadLossMeasurement" Content="{Binding percent}" HorizontalAlignment="Left" Margin="515,217,0,0" VerticalAlignment="Top" Width="41"/>
                     </Grid>
                     <Grid Margin="10,0,10,10" Height="54" VerticalAlignment="Bottom" HorizontalAlignment="Center">
                         <Button x:Name="bCalculate" Content="{Binding bCalculate}" Margin="0,0,10,0" VerticalAlignment="Top" Click="bCalculate_Click" Height="27" Width="200" HorizontalAlignment="Center"/>

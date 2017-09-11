@@ -88,6 +88,11 @@ namespace WaterCommunications.DataReaderWriter
             wsi.Cell(5, 1).Value = output.outputLengthRepairSection;
             wsi.Cell(5, 2).Value = communications.repairSectionMinimumLength;
             wsi.Cell(5, 3).Value = output.km;
+            wsi.Cell(6, 1).Value = output.outputPipeMaterial;
+            wsi.Cell(6, 2).Value = communications.pipe.name;
+            wsi.Cell(7, 1).Value = output.outputAdditionalHeadLoss;
+            wsi.Cell(7, 2).Value = communications.additionalHeadLoss * 100 - 100;
+            wsi.Cell(7, 3).Value = output.percent;
 
             //Style ws
             ws.Rows(2, stations.Count).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;

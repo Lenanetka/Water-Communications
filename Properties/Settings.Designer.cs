@@ -178,5 +178,29 @@ namespace WaterCommunications.Properties {
                 this["tbSavePath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public string tbAdditionalHeadLoss {
+            get {
+                return ((string)(this["tbAdditionalHeadLoss"]));
+            }
+            set {
+                this["tbAdditionalHeadLoss"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int cbPipeMaterialSelectedIndex {
+            get {
+                return ((int)(this["cbPipeMaterialSelectedIndex"]));
+            }
+            set {
+                this["cbPipeMaterialSelectedIndex"] = value;
+            }
+        }
     }
 }

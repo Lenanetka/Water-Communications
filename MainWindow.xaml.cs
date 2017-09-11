@@ -1,15 +1,13 @@
-﻿using System;
+﻿using QuickGraph;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Forms;
 using WaterCommunications.DataReaderWriter;
 using WaterCommunications.Localization;
-using MahApps.Metro.Controls.Dialogs;
-using QuickGraph;
-using System.ComponentModel;
-using System.Threading.Tasks;
 
 namespace WaterCommunications
 {
@@ -18,10 +16,13 @@ namespace WaterCommunications
     /// </summary>
     public partial class MainWindow : INotifyPropertyChanged
     {
+        private List<Pipe> pipes { get; set; }
         public MainWindow()
         {
             this.DataContext = Languages.current;
-            InitializeComponent();                     
+            pipes = new DataFromToCSV().loadPipeMaterials(Environment.CurrentDirectory + @"\db_materials.csv");
+            InitializeComponent();
+            cbPipeMaterial.ItemsSource = pipes;
         }              
         private bool showDialogResult(String title, String message)
         {
@@ -35,9 +36,10 @@ namespace WaterCommunications
         {
             SaveLoadInfo saveLoadInfo = new SaveLoadInfo(tbLoadPath.Text, tbSavePath.Text, (bool)cbOnlyMainInfo.IsChecked);
             Parameters parameters = new Parameters(Convert.ToInt32(tbMainStationId.Text), Convert.ToDouble(tbH.Text), Convert.ToDouble(tbHMin.Text),
-                                                   Convert.ToDouble(tbAccidentPercent.Text), Convert.ToDouble(tbRepairSectionMinimumLength.Text));
-            return new InputSettings(saveLoadInfo, parameters);
-        }
+                                                   Convert.ToDouble(tbAccidentPercent.Text), Convert.ToDouble(tbRepairSectionMinimumLength.Text), Convert.ToDouble(tbAdditionalHeadLoss.Text));
+            Pipe pipe = (Pipe)cbPipeMaterial.SelectedItem;
+            return new InputSettings(saveLoadInfo, parameters, pipe);
+        }        
         private IDataReaderWriter getDataReaderWriter(String path)
         {
             IDataReaderWriter data = null;
@@ -50,7 +52,7 @@ namespace WaterCommunications
         {
             IDataReaderWriter data = getDataReaderWriter(inputSettings.saveLoadInfo.pathLoad);
             List<Station> stations = data.ReadFromFile(inputSettings.saveLoadInfo.pathLoad);
-            Communications communications = new Communications(stations, inputSettings.parameters);
+            Communications communications = new Communications(stations, inputSettings.parameters, inputSettings.pipe);
 
             communications.NonCriticalError += Communications_NonCriticalError;
             communications.checkData();
@@ -78,7 +80,6 @@ namespace WaterCommunications
         #region buttons
         private void bBrowseLoadPath_Click(object sender, RoutedEventArgs e)
         {
-            
             var fileDialog = new OpenFileDialog();
             fileDialog.Filter = "Microsort Exel 2007-2013 XML (*.xlsx)|*.xlsx|comma-separated values (*.csv)|*.csv";
             fileDialog.FileName = tbLoadPath.Text;
@@ -166,11 +167,27 @@ namespace WaterCommunications
         {
             System.Diagnostics.Process.Start((Environment.CurrentDirectory + @"\Help\index.html"));
         }
-        private void changeLanguage(object sender, RoutedEventArgs e)
+        private void pipeMaterialsLocalize(List<String> names)
         {
-            checkOnlyOneMenu(sender);
+            for (int i = 0; i < pipes.Count; i++)
+            {
+                if (pipes[i].id >= 0 && pipes[i].id < names.Count)
+                {
+                    pipes[i].name = names[pipes[i].id];
+                }
+            }
+            int selected = cbPipeMaterial.SelectedIndex;
+            cbPipeMaterial.SelectedIndex = -1;
+            cbPipeMaterial.Items.Refresh();
+            cbPipeMaterial.SelectedIndex = selected;
+        }
+        private void changeLanguage(object sender, RoutedEventArgs e)
+        {           
             Properties.Settings.Default.language = (String)((System.Windows.Controls.MenuItem)sender).Header;
-            this.DataContext = Languages.current;
+            checkOnlyOneMenu(sender);
+            Languages lang = Languages.current;
+            this.DataContext = lang;
+            pipeMaterialsLocalize(lang.cbPipeMaterial);
         }
         private void mLanguage_Loaded(object sender, RoutedEventArgs e)
         {
@@ -182,7 +199,7 @@ namespace WaterCommunications
                 item.Click += new RoutedEventHandler(changeLanguage);
                 mLanguage.Items.Add(item);
             }
-        }       
+        }
         #endregion
         #region graph 
         public IBidirectionalGraph<object, IEdge<object>> _graphToVisualize;

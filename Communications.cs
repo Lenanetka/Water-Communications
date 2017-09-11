@@ -20,23 +20,27 @@ namespace WaterCommunications
                 stations[0].h = value;
             }
         }
-        public double repairSectionMinimumLength;
-        public double hMin;
-        public double accidentPercent;
-        public Communications(List<Station> stations, Parameters parameters)
+        public double repairSectionMinimumLength { get; }
+        public double hMin { get; }
+        public double accidentPercent { get; }
+        public double additionalHeadLoss { get; }
+        public Pipe pipe { get; }
+        public Communications(List<Station> stations, Parameters parameters, Pipe pipe)
         {
             this.stations = stations;
             stations.Insert(0, new Station(parameters.mainStationId));
             connectStations();
-            this.h = parameters.h;
-            this.hMin = parameters.hMin;
-            this.accidentPercent = parameters.accidentPercent / 100;
-            this.repairSectionMinimumLength = parameters.repairSectionMinimumLength;
+            h = parameters.h;
+            hMin = parameters.hMin;
+            accidentPercent = parameters.accidentPercent / 100;
+            repairSectionMinimumLength = parameters.repairSectionMinimumLength;
+            additionalHeadLoss = 1 + parameters.additionalHeadLoss / 100;
+            this.pipe = pipe;
         }      
         private void connectStations()
         {
             for (int i = 0; i < stations.Count; i++)
-                for (int j = 0; j < stations.Count; j++)
+                for (int j = 1; j < stations.Count; j++)
                 {
                     if (stations[j].sourceId == stations[i].id && i != j)
                     {
@@ -153,12 +157,8 @@ namespace WaterCommunications
                 }
             }                           
         }
-        private static double m = 0.223;
-        private static double A0 = 0;
-        private static double A1 = 0.01344;
-        private static double c = 1;
+
         private static double g = 9.81;
-        private static double K = 1.1;
         private double calcilateHLost(double Q, double L, double d)
         {
             Q /= 3600;
@@ -166,7 +166,15 @@ namespace WaterCommunications
             L *= 1000;
 
             double v = (4 * Q) / (Math.PI * d * d);
-            double hLost = (A1 / (2 * g)) * (Math.Pow(A0 + c / v, m) / Math.Pow(d, m + 1)) * v * v * L * K;
+
+            pipe.v = v;
+
+            double m = pipe.m;
+            double A0 = pipe.A0;
+            double A1 = pipe.A1 / 1000;
+            double c = pipe.C;
+
+            double hLost = (A1 / (2 * g)) * (Math.Pow(A0 + c / v, m) / Math.Pow(d, m + 1)) * v * v * L * additionalHeadLoss;
             return hLost;
         }
         private void calculateH(int station)

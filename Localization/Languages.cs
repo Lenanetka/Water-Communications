@@ -27,6 +27,10 @@ namespace WaterCommunications.Localization
         public String labelHMin { get; set; }
         public String labelAccidentPercent { get; set; }
         public String labelRepairSectionMinimumLength { get; set; }
+        public String labelPipeMaterial { get; set; }
+        public String labelAdditionalHeadLoss { get; set; }
+
+        public List<String> cbPipeMaterial { get; set; }
 
         public String mFile { get; set; }
         public String mOpen { get; set; }
@@ -51,6 +55,7 @@ namespace WaterCommunications.Localization
         public String error104 { get; set; }
         public String error105 { get; set; }
         public String error106 { get; set; }
+        public String error107 { get; set; }
         public String error201 { get; set; }
         public String error202 { get; set; }
         public String error203 { get; set; }
@@ -72,6 +77,8 @@ namespace WaterCommunications.Localization
         public String outputHeadMin { get; set; }
         public String outputAccidentPercent { get; set; }
         public String outputLengthRepairSection { get; set; }
+        public String outputPipeMaterial { get; set; }
+        public String outputAdditionalHeadLoss { get; set; }
 
         public String percent { get; set; }
         public String m { get; set; }
